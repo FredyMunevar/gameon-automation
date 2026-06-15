@@ -1,0 +1,15 @@
+# Credenciales — NUNCA versionar
+.env
+*.env
+secrets*
+# APK decompilado (no versionar)
+jadx-out/
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+# OS
+.DS_Store
+# Config local de Claude Code
+.claude/

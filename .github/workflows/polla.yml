@@ -1,0 +1,37 @@
+# Envía mis picks a AppGameOn en la nube (sin mi Mac), todas las mañanas.
+#
+# Secrets del repo (Settings > Secrets and variables > Actions > New repository secret):
+#   FIREBASE_API_KEY   la google_api_key del APK (no es secreta, pero va por secret)
+#   GAMEON_EMAIL       mi correo de GameOn
+#   GAMEON_PASSWORD    mi contraseña  (SECRETO)
+#   GAMEON_GROUP_ID    32534  (la polla del Mundial)
+#
+# Alcance: submit_gameon.py solo envía picks de partidos NO empezados (state NS) y
+# con > 5 min para el saque. Re-correr es idempotente (sobrescribe con el pick más
+# reciente de picks.json). Por eso la corrida es matutina, con horas de margen.
+#
+# Hora: el cron de Actions es UTC. 13:00 UTC = 08:00 Bogotá (UTC-5).
+
+name: Enviar picks polla
+
+on:
+  schedule:
+    - cron: "0 13 * * *"        # 08:00 Bogotá, todos los días
+  workflow_dispatch: {}          # permite dispararlo a mano desde la pestaña Actions
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Enviar picks pendientes (solo partidos sin empezar)
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          GAMEON_EMAIL:     ${{ secrets.GAMEON_EMAIL }}
+          GAMEON_PASSWORD:  ${{ secrets.GAMEON_PASSWORD }}
+          GAMEON_GROUP_ID:  ${{ secrets.GAMEON_GROUP_ID }}
+        run: python3 submit_gameon.py --go
