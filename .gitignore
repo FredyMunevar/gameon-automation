@@ -4,6 +4,9 @@
 secrets*
 # APK decompilado (no versionar)
 jadx-out/
+# Artefactos generados por el modelo
+wc_model.json
+picks_generated.json
 # Python
 __pycache__/
 *.pyc

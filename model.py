@@ -4,7 +4,9 @@
 Modelo de pronostico Mundial 2026 optimizado para la polla (6/4/3).
 Motor: Elo -> goles esperados -> Poisson + correccion Dixon-Coles ->
 matriz de marcadores -> optimizador de puntos esperados (polla).
-Incluye backtest sobre los 12 partidos ya jugados.
+
+Importable como motor (constantes + funciones puras). El backtest y la
+generacion del JSON del widget corren solo como script (__main__).
 """
 import math, json
 
@@ -42,9 +44,10 @@ ELO = {
 def pois(k, lam):
     return math.exp(-lam) * lam**k / math.factorial(k)
 
-def lambdas(home, away, host_home=False, host_away=False):
-    eh = ELO[home] + (HFA if host_home else 0)
-    ea = ELO[away] + (HFA if host_away else 0)
+def lambdas(home, away, host_home=False, host_away=False, elo=None):
+    elo = elo if elo is not None else ELO
+    eh = elo[home] + (HFA if host_home else 0)
+    ea = elo[away] + (HFA if host_away else 0)
     sup = (eh - ea) / SUPREMACY_SCALE
     lh = max(LAMBDA_FLOOR, (BASE_TOTAL + sup) / 2)
     la = max(LAMBDA_FLOOR, (BASE_TOTAL - sup) / 2)
@@ -244,7 +247,7 @@ def hk(m): return KEY[m["home"][0]]
 def ak(m): return KEY[m["away"][0]]
 
 # ---------------------------------------------------------------
-# BACKTEST sobre los 12 jugados (Elo pre-torneo, sin mirar resultados)
+# BACKTEST + JSON del widget (solo como script)
 # ---------------------------------------------------------------
 HEUR = {  # lo que YO habría enviado (heurístico) a cada partido jugado
  ("México","Sudáfrica"):(2,0),("Corea del Sur","Rep. Checa"):(1,1),
@@ -260,136 +263,132 @@ def brier_1x2(ph,pd,pa, ah,aa):
     p = (ph,pd,pa)
     return sum((p[i]-y[i])**2 for i in range(3))
 
-played = [m for m in matches if m["result"]]
-pending = [m for m in matches if not m["result"]]
+def run_report(out_path="wc_model.json"):
+    played = [m for m in matches if m["result"]]
+    pending = [m for m in matches if not m["result"]]
 
-model_pts = heur_pts = modal_pts = rec_pts = 0
-brier_model = brier_unif = 0.0
-bt_rows = []
-for m in played:
-    host_home = (m.get("host")=="home"); host_away=(m.get("host")=="away")
-    lh,la = lambdas(hk(m),ak(m),host_home,host_away)
-    M = score_matrix(lh,la)
-    ph,pd,pa = outcome_probs(M)
-    pick,ev = ev_pick(M)
-    mod = modal_score(M)
-    rec = recommend(dict(ph=ph,pd=pd,pa=pa,pick=pick,modal=mod))
-    ah,aa = m["result"]
-    mp = points(*pick,ah,aa); model_pts += mp
-    mdp = points(*mod,ah,aa); modal_pts += mdp
-    rp = points(*rec,ah,aa); rec_pts += rp
-    hpk = HEUR[(m["home"][0],m["away"][0])]; hp = points(*hpk,ah,aa); heur_pts += hp
-    brier_model += brier_1x2(ph,pd,pa,ah,aa)
-    brier_unif  += brier_1x2(1/3,1/3,1/3,ah,aa)
-    bt_rows.append(dict(g=m["gid"],home=m["home"][0],away=m["away"][0],
-        actual=(ah,aa),model=pick,modelpts=mp,modal=mod,modalpts=mdp,
-        rec=rec,recpts=rp,heur=hpk,heurpts=hp,
-        probs=(round(ph*100),round(pd*100),round(pa*100))))
+    model_pts = heur_pts = modal_pts = rec_pts = 0
+    brier_model = brier_unif = 0.0
+    bt_rows = []
+    for m in played:
+        host_home = (m.get("host")=="home"); host_away=(m.get("host")=="away")
+        lh,la = lambdas(hk(m),ak(m),host_home,host_away)
+        M = score_matrix(lh,la)
+        ph,pd,pa = outcome_probs(M)
+        pick,ev = ev_pick(M)
+        mod = modal_score(M)
+        rec = recommend(dict(ph=ph,pd=pd,pa=pa,pick=pick,modal=mod))
+        ah,aa = m["result"]
+        mp = points(*pick,ah,aa); model_pts += mp
+        mdp = points(*mod,ah,aa); modal_pts += mdp
+        rp = points(*rec,ah,aa); rec_pts += rp
+        hpk = HEUR[(m["home"][0],m["away"][0])]; hp = points(*hpk,ah,aa); heur_pts += hp
+        brier_model += brier_1x2(ph,pd,pa,ah,aa)
+        brier_unif  += brier_1x2(1/3,1/3,1/3,ah,aa)
+        bt_rows.append(dict(g=m["gid"],home=m["home"][0],away=m["away"][0],
+            actual=(ah,aa),model=pick,modelpts=mp,modal=mod,modalpts=mdp,
+            rec=rec,recpts=rp,heur=hpk,heurpts=hp,
+            probs=(round(ph*100),round(pd*100),round(pa*100))))
 
-n=len(played)
-print("="*64)
-print(f"BACKTEST sobre {n} partidos jugados (Jornada 1, Grupos A-F)")
-print("="*64)
-print(f"{'Partido':<24}{'Real':>5}{'Recom':>7}{'pts':>4}{'Prob':>6}{'pts':>4}{'Heur':>6}{'pts':>4}")
-for r in bt_rows:
-    pa_=f"{r['actual'][0]}-{r['actual'][1]}"; prc=f"{r['rec'][0]}-{r['rec'][1]}"
-    pmo=f"{r['modal'][0]}-{r['modal'][1]}"; ph_=f"{r['heur'][0]}-{r['heur'][1]}"
-    name=f"{r['home'][:11]} v {r['away'][:6]}"
-    print(f"{name:<24}{pa_:>5}{prc:>7}{r['recpts']:>4}{pmo:>6}{r['modalpts']:>4}{ph_:>6}{r['heurpts']:>4}")
-print("-"*60)
-print(f"{'TOTAL (12 jugados)':<24}{'':>5}{'RECOM':>7}{rec_pts:>4}{'PROB':>6}{modal_pts:>4}{'HEUR':>6}{heur_pts:>4}")
-print(f"\nResumen puntos -> Recomendado(híbrido)={rec_pts} | Más-probable={modal_pts} | EV={model_pts} | Heurístico={heur_pts}")
-print(f"\nPuntos: MODELO(EV)={model_pts}  | marcador-mas-probable={modal_pts}  | HEURISTICO={heur_pts}")
-print(f"Promedio por partido: MODELO={model_pts/n:.2f}  HEUR={heur_pts/n:.2f}")
-print(f"Brier 1X2 (menor=mejor): MODELO={brier_model/n:.3f}  vs azar(1/3)={brier_unif/n:.3f}")
+    n=len(played)
+    print("="*64)
+    print(f"BACKTEST sobre {n} partidos jugados (Jornada 1, Grupos A-F)")
+    print("="*64)
+    print(f"{'Partido':<24}{'Real':>5}{'Recom':>7}{'pts':>4}{'Prob':>6}{'pts':>4}{'Heur':>6}{'pts':>4}")
+    for r in bt_rows:
+        pa_=f"{r['actual'][0]}-{r['actual'][1]}"; prc=f"{r['rec'][0]}-{r['rec'][1]}"
+        pmo=f"{r['modal'][0]}-{r['modal'][1]}"; ph_=f"{r['heur'][0]}-{r['heur'][1]}"
+        name=f"{r['home'][:11]} v {r['away'][:6]}"
+        print(f"{name:<24}{pa_:>5}{prc:>7}{r['recpts']:>4}{pmo:>6}{r['modalpts']:>4}{ph_:>6}{r['heurpts']:>4}")
+    print("-"*60)
+    print(f"{'TOTAL (12 jugados)':<24}{'':>5}{'RECOM':>7}{rec_pts:>4}{'PROB':>6}{modal_pts:>4}{'HEUR':>6}{heur_pts:>4}")
+    print(f"\nResumen puntos -> Recomendado(híbrido)={rec_pts} | Más-probable={modal_pts} | EV={model_pts} | Heurístico={heur_pts}")
+    print(f"\nPuntos: MODELO(EV)={model_pts}  | marcador-mas-probable={modal_pts}  | HEURISTICO={heur_pts}")
+    print(f"Promedio por partido: MODELO={model_pts/n:.2f}  HEUR={heur_pts/n:.2f}")
+    print(f"Brier 1X2 (menor=mejor): MODELO={brier_model/n:.3f}  vs azar(1/3)={brier_unif/n:.3f}")
 
-# ---------------------------------------------------------------
-# Actualizacion bayesiana (Elo) con la Jornada 1 -> activa desde J2
-# (los equipos de grupos G-L aun no juegan; se reporta como referencia)
-# ---------------------------------------------------------------
-elo_delta = {}
-for m in played:
-    gh,ga = m["result"]; host_home=(m.get("host")=="home")
-    dh = elo_update(ELO[hk(m)],ELO[ak(m)],gh,ga,host_home)
-    da = elo_update(ELO[ak(m)],ELO[hk(m)],ga,gh,False)
-    elo_delta[hk(m)] = elo_delta.get(hk(m),0)+dh
-    elo_delta[ak(m)] = elo_delta.get(ak(m),0)+da
+    # Actualizacion bayesiana (Elo) con la Jornada 1 -> activa desde J2
+    elo_delta = {}
+    for m in played:
+        gh,ga = m["result"]; host_home=(m.get("host")=="home")
+        dh = elo_update(ELO[hk(m)],ELO[ak(m)],gh,ga,host_home)
+        da = elo_update(ELO[ak(m)],ELO[hk(m)],ga,gh,False)
+        elo_delta[hk(m)] = elo_delta.get(hk(m),0)+dh
+        elo_delta[ak(m)] = elo_delta.get(ak(m),0)+da
 
-# ---------------------------------------------------------------
-# PREDICCIONES para los 12 pendientes (Elo, optimizado para la polla)
-# ---------------------------------------------------------------
-print("\n"+"="*64)
-print("PREDICCIONES OPTIMIZADAS PARA LA POLLA (12 pendientes)")
-print("="*64)
-print(f"{'Partido':<28}{'1':>4}{'X':>4}{'2':>4}{'Probable':>9}{'EV-alt':>7}")
-for m in pending:
-    host_home=(m.get("host")=="home"); host_away=(m.get("host")=="away")
-    lh,la = lambdas(hk(m),ak(m),host_home,host_away)
-    M = score_matrix(lh,la)
-    ph,pd,pa = outcome_probs(M)
-    pick,ev = ev_pick(M); mod = modal_score(M)
-    m["_model"]=dict(ph=ph,pd=pd,pa=pa,lh=lh,la=la,pick=pick,ev=ev,modal=mod)
-    name=f"{m['home'][0][:14]} v {m['away'][0][:9]}"
-    print(f"{name:<28}{ph*100:>3.0f}%{pd*100:>3.0f}%{pa*100:>3.0f}%{mod[0]:>6}-{mod[1]}{pick[0]:>5}-{pick[1]}")
+    # PREDICCIONES para los pendientes (Elo, optimizado para la polla)
+    print("\n"+"="*64)
+    print("PREDICCIONES OPTIMIZADAS PARA LA POLLA (pendientes)")
+    print("="*64)
+    print(f"{'Partido':<28}{'1':>4}{'X':>4}{'2':>4}{'Probable':>9}{'EV-alt':>7}")
+    for m in pending:
+        host_home=(m.get("host")=="home"); host_away=(m.get("host")=="away")
+        lh,la = lambdas(hk(m),ak(m),host_home,host_away)
+        M = score_matrix(lh,la)
+        ph,pd,pa = outcome_probs(M)
+        pick,ev = ev_pick(M); mod = modal_score(M)
+        m["_model"]=dict(ph=ph,pd=pd,pa=pa,lh=lh,la=la,pick=pick,ev=ev,modal=mod)
+        name=f"{m['home'][0][:14]} v {m['away'][0][:9]}"
+        print(f"{name:<28}{ph*100:>3.0f}%{pd*100:>3.0f}%{pa*100:>3.0f}%{mod[0]:>6}-{mod[1]}{pick[0]:>5}-{pick[1]}")
 
-# ---------------------------------------------------------------
-# EMITIR DATOS JSON PARA EL WIDGET
-# ---------------------------------------------------------------
-def team_obj(t):
-    o = {"name":t[0],"flag":t[1]}
-    if len(t)>2 and t[2]: o["debut"]=True
-    return o
+    # JSON para el widget
+    def team_obj(t):
+        o = {"name":t[0],"flag":t[1]}
+        if len(t)>2 and t[2]: o["debut"]=True
+        return o
 
-def hist_to_preds(m):
-    out=[]
-    for h in m["hist"]:
-        out.append(dict(stage=h[0],date=h[1],hs=h[2],as_=h[3],conf=h[4],type=h[5],reason=h[6]))
-    return out
+    def hist_to_preds(m):
+        out=[]
+        for h in m["hist"]:
+            out.append(dict(stage=h[0],date=h[1],hs=h[2],as_=h[3],conf=h[4],type=h[5],reason=h[6]))
+        return out
 
-out_matches=[]
-for m in matches:
-    o=dict(gid=m["gid"],date=m["date"],venue=m["venue"],
-           home=team_obj(m["home"]),away=team_obj(m["away"]),note=m["note"],
-           predictions=hist_to_preds(m))
-    if m["result"]:
-        o["result"]={"hs":m["result"][0],"as_":m["result"][1]}
-        # current pick = last hist
-        last=m["hist"][-1]; o["hs"]=last[2]; o["as_"]=last[3]; o["conf"]=last[4]; o["type"]=last[5]
-    else:
-        md=m["_model"]; pick=recommend(md); modal=tuple(md["modal"]); evp=tuple(md["pick"])
-        po=(pick[0]>pick[1])-(pick[0]<pick[1])
-        conf = md["ph"] if po>0 else (md["pd"] if po==0 else md["pa"])
-        coin = not (md["ph"]>=0.58 or md["pa"]>=0.58)
-        typ = "EMP" if coin else ("FAV" if max(md["ph"],md["pa"])>=0.68 else "SOR")
-        o["hs"]=pick[0]; o["as_"]=pick[1]; o["conf"]=round(conf*100); o["type"]=typ
-        o["model"]=dict(ph=round(md["ph"]*100),pd=round(md["pd"]*100),pa=round(md["pa"]*100),
-                        lh=round(md["lh"],2),la=round(md["la"],2),
-                        modal={"hs":modal[0],"as_":modal[1]},
-                        evPick={"hs":evp[0],"as_":evp[1]},ev=round(md["ev"],2),coin=coin)
-        if coin:
-            reason=(f"Motor Poisson-Elo. 1X2 = {round(md['ph']*100)}/{round(md['pd']*100)}/{round(md['pa']*100)}%. "
-                    f"Sin favorito claro (moneda al aire): recomiendo 1-1, el marcador más común y con opción al bono por exacto. "
-                    f"En el backtest, jugar 1-1 en los cerrados clavó 3 empates exactos (Canadá, Qatar, Brasil).")
+    out_matches=[]
+    for m in matches:
+        o=dict(gid=m["gid"],date=m["date"],venue=m["venue"],
+               home=team_obj(m["home"]),away=team_obj(m["away"]),note=m["note"],
+               predictions=hist_to_preds(m))
+        if m["result"]:
+            o["result"]={"hs":m["result"][0],"as_":m["result"][1]}
+            last=m["hist"][-1]; o["hs"]=last[2]; o["as_"]=last[3]; o["conf"]=last[4]; o["type"]=last[5]
         else:
-            reason=(f"Motor Poisson-Elo. 1X2 = {round(md['ph']*100)}/{round(md['pd']*100)}/{round(md['pa']*100)}%. "
-                    f"Favorito claro: me comprometo con {pick[0]}-{pick[1]} para asegurar el piso de puntos. "
-                    f"Nota: 2-0, no 3-0 — el más probable es {modal[0]}-{modal[1]} y rinde más que un marcador abultado improbable.")
-        o["predictions"].append(dict(stage="Modelo Poisson-Elo",date="15 Jun",
-                                     hs=pick[0],as_=pick[1],conf=round(conf*100),type=typ,reason=reason))
-    out_matches.append(o)
+            md=m["_model"]; pick=recommend(md); modal=tuple(md["modal"]); evp=tuple(md["pick"])
+            po=(pick[0]>pick[1])-(pick[0]<pick[1])
+            conf = md["ph"] if po>0 else (md["pd"] if po==0 else md["pa"])
+            coin = not (md["ph"]>=0.58 or md["pa"]>=0.58)
+            typ = "EMP" if coin else ("FAV" if max(md["ph"],md["pa"])>=0.68 else "SOR")
+            o["hs"]=pick[0]; o["as_"]=pick[1]; o["conf"]=round(conf*100); o["type"]=typ
+            o["model"]=dict(ph=round(md["ph"]*100),pd=round(md["pd"]*100),pa=round(md["pa"]*100),
+                            lh=round(md["lh"],2),la=round(md["la"],2),
+                            modal={"hs":modal[0],"as_":modal[1]},
+                            evPick={"hs":evp[0],"as_":evp[1]},ev=round(md["ev"],2),coin=coin)
+            if coin:
+                reason=(f"Motor Poisson-Elo. 1X2 = {round(md['ph']*100)}/{round(md['pd']*100)}/{round(md['pa']*100)}%. "
+                        f"Sin favorito claro (moneda al aire): recomiendo 1-1, el marcador más común y con opción al bono por exacto. "
+                        f"En el backtest, jugar 1-1 en los cerrados clavó 3 empates exactos (Canadá, Qatar, Brasil).")
+            else:
+                reason=(f"Motor Poisson-Elo. 1X2 = {round(md['ph']*100)}/{round(md['pd']*100)}/{round(md['pa']*100)}%. "
+                        f"Favorito claro: me comprometo con {pick[0]}-{pick[1]} para asegurar el piso de puntos. "
+                        f"Nota: 2-0, no 3-0 — el más probable es {modal[0]}-{modal[1]} y rinde más que un marcador abultado improbable.")
+            o["predictions"].append(dict(stage="Modelo Poisson-Elo",date="15 Jun",
+                                         hs=pick[0],as_=pick[1],conf=round(conf*100),type=typ,reason=reason))
+        out_matches.append(o)
 
-backtest=dict(n=n,modelPoints=model_pts,heurPoints=heur_pts,modalPoints=modal_pts,recPoints=rec_pts,
-              recAvg=round(rec_pts/n,2),heurAvg=round(heur_pts/n,2),
-              brierModel=round(brier_model/n,3),brierUnif=round(brier_unif/n,3),
-              rows=[dict(g=r["g"],home=r["home"],away=r["away"],
-                         actual=f"{r['actual'][0]}-{r['actual'][1]}",
-                         rec=f"{r['rec'][0]}-{r['rec'][1]}",recpts=r["recpts"],
-                         modal=f"{r['modal'][0]}-{r['modal'][1]}",modalpts=r["modalpts"],
-                         heur=f"{r['heur'][0]}-{r['heur'][1]}",heurpts=r["heurpts"],
-                         probs=r["probs"]) for r in bt_rows])
-params=dict(baseTotal=BASE_TOTAL,supScale=SUPREMACY_SCALE,hfa=HFA,rho=RHO,drawGd=DRAW_GD_BONUS)
+    backtest=dict(n=n,modelPoints=model_pts,heurPoints=heur_pts,modalPoints=modal_pts,recPoints=rec_pts,
+                  recAvg=round(rec_pts/n,2),heurAvg=round(heur_pts/n,2),
+                  brierModel=round(brier_model/n,3),brierUnif=round(brier_unif/n,3),
+                  rows=[dict(g=r["g"],home=r["home"],away=r["away"],
+                             actual=f"{r['actual'][0]}-{r['actual'][1]}",
+                             rec=f"{r['rec'][0]}-{r['rec'][1]}",recpts=r["recpts"],
+                             modal=f"{r['modal'][0]}-{r['modal'][1]}",modalpts=r["modalpts"],
+                             heur=f"{r['heur'][0]}-{r['heur'][1]}",heurpts=r["heurpts"],
+                             probs=r["probs"]) for r in bt_rows])
+    params=dict(baseTotal=BASE_TOTAL,supScale=SUPREMACY_SCALE,hfa=HFA,rho=RHO,drawGd=DRAW_GD_BONUS)
 
-with open("/home/claude/wc_model.json","w") as f:
-    json.dump(dict(matches=out_matches,backtest=backtest,params=params),f,ensure_ascii=False)
+    with open(out_path,"w") as f:
+        json.dump(dict(matches=out_matches,backtest=backtest,params=params),f,ensure_ascii=False)
 
-print("\nJSON escrito. Backtest:", model_pts, "vs heur", heur_pts, "| modal", modal_pts)
+    print("\nJSON escrito en", out_path, "| Backtest:", model_pts, "vs heur", heur_pts, "| modal", modal_pts)
+
+if __name__ == "__main__":
+    run_report()

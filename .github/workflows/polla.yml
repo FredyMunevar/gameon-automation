@@ -6,9 +6,11 @@
 #   GAMEON_PASSWORD    mi contraseña  (SECRETO)
 #   GAMEON_GROUP_ID    32534  (la polla del Mundial)
 #
-# Alcance: submit_gameon.py solo envía picks de partidos NO empezados (state NS) y
-# con > 5 min para el saque. Re-correr es idempotente (sobrescribe con el pick más
-# reciente de picks.json). Por eso la corrida es matutina, con horas de margen.
+# Qué hace cada corrida (modelo vivo): login -> lee el calendario con resultados ->
+# actualiza el Elo bayesiano ACUMULADO con todos los partidos FT -> re-predice TODOS
+# los partidos NS (Poisson-Elo + Dixon-Coles) -> los envía/edita.
+# Alcance: solo partidos NO empezados (state NS) y con > 5 min para el saque.
+# Idempotente: re-correr sobrescribe con el pick más reciente. Por eso es matutina.
 #
 # Hora: el cron de Actions es UTC. 13:00 UTC = 08:00 Bogotá (UTC-5).
 
