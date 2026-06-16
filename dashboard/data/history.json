@@ -1,0 +1,2101 @@
+{
+ "matches": {
+  "19609127": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 72,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "2-0",
+   "fixtureId": 19609127,
+   "local": "México",
+   "visitante": "Sudáfrica",
+   "saque_utc": "2026-06-11T19:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-0",
+    "conf": 72,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609153": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "1-1",
+     "conf": 52,
+     "tipo": "EMP",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "2-1",
+   "fixtureId": 19609153,
+   "local": "Corea del Sur",
+   "visitante": "Rep. Checa",
+   "saque_utc": "2026-06-12T02:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "1-1",
+    "conf": 52,
+    "tipo": "EMP",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609154": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 62,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-1",
+   "fixtureId": 19609154,
+   "local": "Canadá",
+   "visitante": "Bosnia-Herz.",
+   "saque_utc": "2026-06-12T19:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-1",
+    "conf": 62,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609133": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 69,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "4-1",
+   "fixtureId": 19609133,
+   "local": "EE. UU.",
+   "visitante": "Paraguay",
+   "saque_utc": "2026-06-13T01:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-0",
+    "conf": 69,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609130": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "0-2",
+     "conf": 83,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-1",
+   "fixtureId": 19609130,
+   "local": "Qatar",
+   "visitante": "Suiza",
+   "saque_utc": "2026-06-13T19:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "0-2",
+    "conf": 83,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609131": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 63,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-1",
+   "fixtureId": 19609131,
+   "local": "Brasil",
+   "visitante": "Marruecos",
+   "saque_utc": "2026-06-13T22:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-1",
+    "conf": 63,
+    "tipo": "SOR",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609155": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "0-2",
+     "conf": 79,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "0-1",
+   "fixtureId": 19609155,
+   "local": "Haití",
+   "visitante": "Escocia",
+   "saque_utc": "2026-06-14T01:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "0-2",
+    "conf": 79,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609156": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "1-1",
+     "conf": 54,
+     "tipo": "EMP",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "2-0",
+   "fixtureId": 19609156,
+   "local": "Australia",
+   "visitante": "Turquía",
+   "saque_utc": "2026-06-14T04:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "1-1",
+    "conf": 54,
+    "tipo": "EMP",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609158": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "4-0",
+     "conf": 89,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "3-0",
+     "conf": 88,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    }
+   ],
+   "resultado": "7-1",
+   "fixtureId": 19609158,
+   "local": "Alemania",
+   "visitante": "Curazao",
+   "saque_utc": "2026-06-14T17:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "14 Jun",
+    "pick": "3-0",
+    "conf": 88,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Ajuste tras Jornada 1"
+   }
+  },
+  "19609138": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 65,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "2-2",
+   "fixtureId": 19609138,
+   "local": "Países Bajos",
+   "visitante": "Japón",
+   "saque_utc": "2026-06-14T20:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-1",
+    "conf": 65,
+    "tipo": "SOR",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609157": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "1-1",
+     "conf": 55,
+     "tipo": "EMP",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-0",
+   "fixtureId": 19609157,
+   "local": "Costa de Marfil",
+   "visitante": "Ecuador",
+   "saque_utc": "2026-06-14T23:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "1-1",
+    "conf": 55,
+    "tipo": "EMP",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609159": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 73,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "5-1",
+   "fixtureId": 19609159,
+   "local": "Suecia",
+   "visitante": "Túnez",
+   "saque_utc": "2026-06-15T02:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-0",
+    "conf": 73,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609162": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "3-0",
+     "conf": 86,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "2-0",
+     "conf": 85,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "3-0",
+     "conf": 86,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    }
+   ],
+   "resultado": "0-0",
+   "fixtureId": 19609162,
+   "local": "España",
+   "visitante": "Cabo Verde",
+   "saque_utc": "2026-06-15T16:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "15 Jun",
+    "pick": "3-0",
+    "conf": 86,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Re-ajuste tras Jornada 4"
+   }
+  },
+  "19609139": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 67,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-1",
+   "fixtureId": 19609139,
+   "local": "Bélgica",
+   "visitante": "Egipto",
+   "saque_utc": "2026-06-15T19:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-1",
+    "conf": 67,
+    "tipo": "SOR",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609161": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "1-2",
+     "conf": 65,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "1-1",
+   "fixtureId": 19609161,
+   "local": "Arabia Saudita",
+   "visitante": "Uruguay",
+   "saque_utc": "2026-06-15T22:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "1-2",
+    "conf": 65,
+    "tipo": "SOR",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609160": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 77,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    }
+   ],
+   "resultado": "2-2",
+   "fixtureId": 19609160,
+   "local": "Irán",
+   "visitante": "Nueva Zelanda",
+   "saque_utc": "2026-06-16T01:00:00Z",
+   "grupo": "1",
+   "estado": "jugado",
+   "actual": {
+    "date": "Pre-torneo",
+    "pick": "2-0",
+    "conf": 77,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Pronóstico inicial"
+   }
+  },
+  "19609143": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 68,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "1-1",
+     "conf": 56,
+     "tipo": "EMP",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "2-1",
+     "conf": 66,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609143,
+   "local": "Francia",
+   "visitante": "Senegal",
+   "saque_utc": "2026-06-16T19:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "15 Jun",
+    "pick": "2-1",
+    "conf": 66,
+    "tipo": "SOR",
+    "fuente": "manual",
+    "etapa": "Re-ajuste tras Jornada 4"
+   }
+  },
+  "19609163": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "0-3",
+     "conf": 81,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "0-2",
+     "conf": 79,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "0-3",
+     "conf": 81,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    },
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 67,
+     "tipo": "SOR",
+     "prob_1X2": "13/20/67",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609163,
+   "local": "Irak",
+   "visitante": "Noruega",
+   "saque_utc": "2026-06-16T22:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 67,
+    "tipo": "SOR",
+    "prob_1X2": "13/20/67",
+    "fuente": "auto"
+   }
+  },
+  "19609145": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "3-0",
+     "conf": 85,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "2-0",
+     "conf": 84,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "3-0",
+     "conf": 85,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    },
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 75,
+     "tipo": "FAV",
+     "prob_1X2": "75/17/8",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609145,
+   "local": "Argentina",
+   "visitante": "Argelia",
+   "saque_utc": "2026-06-17T01:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 75,
+    "tipo": "FAV",
+    "prob_1X2": "75/17/8",
+    "fuente": "auto"
+   }
+  },
+  "19609164": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 81,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 23,
+     "tipo": "EMP",
+     "prob_1X2": "55/23/22",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609164,
+   "local": "Austria",
+   "visitante": "Jordania",
+   "saque_utc": "2026-06-17T04:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 23,
+    "tipo": "EMP",
+    "prob_1X2": "55/23/22",
+    "fuente": "auto"
+   }
+  },
+  "19609166": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "3-0",
+     "conf": 84,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "2-0",
+     "conf": 83,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "3-0",
+     "conf": 84,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    },
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 68,
+     "tipo": "SOR",
+     "prob_1X2": "68/20/12",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609166,
+   "local": "Portugal",
+   "visitante": "R.D. Congo",
+   "saque_utc": "2026-06-17T17:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 68,
+    "tipo": "SOR",
+    "prob_1X2": "68/20/12",
+    "fuente": "auto"
+   }
+  },
+  "19609149": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-1",
+     "conf": 68,
+     "tipo": "SOR",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "49/24/26",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609149,
+   "local": "Inglaterra",
+   "visitante": "Croacia",
+   "saque_utc": "2026-06-17T20:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "49/24/26",
+    "fuente": "auto"
+   }
+  },
+  "19609167": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "2-0",
+     "conf": 75,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "42/25/33",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609167,
+   "local": "Ghana",
+   "visitante": "Panamá",
+   "saque_utc": "2026-06-17T23:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "42/25/33",
+    "fuente": "auto"
+   }
+  },
+  "19609165": {
+   "history": [
+    {
+     "date": "Pre-torneo",
+     "pick": "0-2",
+     "conf": 79,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Pronóstico inicial"
+    },
+    {
+     "date": "14 Jun",
+     "pick": "0-1",
+     "conf": 76,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Ajuste tras Jornada 1"
+    },
+    {
+     "date": "15 Jun",
+     "pick": "0-2",
+     "conf": 79,
+     "tipo": "FAV",
+     "fuente": "manual",
+     "etapa": "Re-ajuste tras Jornada 4"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609165,
+   "local": "Uzbekistán",
+   "visitante": "Colombia",
+   "saque_utc": "2026-06-18T02:00:00Z",
+   "grupo": "1",
+   "estado": "pendiente",
+   "actual": {
+    "date": "15 Jun",
+    "pick": "0-2",
+    "conf": 79,
+    "tipo": "FAV",
+    "fuente": "manual",
+    "etapa": "Re-ajuste tras Jornada 4"
+   }
+  },
+  "19609168": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "54/24/23",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609168,
+   "local": "Rep. Checa",
+   "visitante": "Sudáfrica",
+   "saque_utc": "2026-06-18T16:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "54/24/23",
+    "fuente": "auto"
+   }
+  },
+  "19609169": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 23,
+     "tipo": "EMP",
+     "prob_1X2": "54/23/22",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609169,
+   "local": "Suiza",
+   "visitante": "Bosnia-Herz.",
+   "saque_utc": "2026-06-18T19:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 23,
+    "tipo": "EMP",
+    "prob_1X2": "54/23/22",
+    "fuente": "auto"
+   }
+  },
+  "19609170": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "48/25/27",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609170,
+   "local": "Canadá",
+   "visitante": "Qatar",
+   "saque_utc": "2026-06-18T22:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "48/25/27",
+    "fuente": "auto"
+   }
+  },
+  "19609128": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "43/25/32",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609128,
+   "local": "México",
+   "visitante": "Corea del Sur",
+   "saque_utc": "2026-06-19T01:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "43/25/32",
+    "fuente": "auto"
+   }
+  },
+  "19609134": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "48/25/27",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609134,
+   "local": "EE. UU.",
+   "visitante": "Australia",
+   "saque_utc": "2026-06-19T19:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "48/25/27",
+    "fuente": "auto"
+   }
+  },
+  "19609171": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "31/25/43",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609171,
+   "local": "Escocia",
+   "visitante": "Marruecos",
+   "saque_utc": "2026-06-19T22:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "31/25/43",
+    "fuente": "auto"
+   }
+  },
+  "19609172": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 80,
+     "tipo": "FAV",
+     "prob_1X2": "80/14/5",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609172,
+   "local": "Brasil",
+   "visitante": "Haití",
+   "saque_utc": "2026-06-20T00:30:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 80,
+    "tipo": "FAV",
+    "prob_1X2": "80/14/5",
+    "fuente": "auto"
+   }
+  },
+  "19609173": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "50/24/26",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609173,
+   "local": "Turquía",
+   "visitante": "Paraguay",
+   "saque_utc": "2026-06-20T03:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "50/24/26",
+    "fuente": "auto"
+   }
+  },
+  "19609176": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "47/25/28",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609176,
+   "local": "Países Bajos",
+   "visitante": "Suecia",
+   "saque_utc": "2026-06-20T17:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "47/25/28",
+    "fuente": "auto"
+   }
+  },
+  "19609135": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "54/24/22",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609135,
+   "local": "Alemania",
+   "visitante": "Costa de Marfil",
+   "saque_utc": "2026-06-20T20:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "54/24/22",
+    "fuente": "auto"
+   }
+  },
+  "19609174": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 73,
+     "tipo": "FAV",
+     "prob_1X2": "73/18/10",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609174,
+   "local": "Ecuador",
+   "visitante": "Curazao",
+   "saque_utc": "2026-06-21T00:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 73,
+    "tipo": "FAV",
+    "prob_1X2": "73/18/10",
+    "fuente": "auto"
+   }
+  },
+  "19609175": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 65,
+     "tipo": "SOR",
+     "prob_1X2": "14/21/65",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609175,
+   "local": "Túnez",
+   "visitante": "Japón",
+   "saque_utc": "2026-06-21T04:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 65,
+    "tipo": "SOR",
+    "prob_1X2": "14/21/65",
+    "fuente": "auto"
+   }
+  },
+  "19609142": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 82,
+     "tipo": "FAV",
+     "prob_1X2": "82/14/5",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609142,
+   "local": "España",
+   "visitante": "Arabia Saudita",
+   "saque_utc": "2026-06-21T16:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 82,
+    "tipo": "FAV",
+    "prob_1X2": "82/14/5",
+    "fuente": "auto"
+   }
+  },
+  "19609152": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "43/25/32",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609152,
+   "local": "Bélgica",
+   "visitante": "Irán",
+   "saque_utc": "2026-06-21T19:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "43/25/32",
+    "fuente": "auto"
+   }
+  },
+  "19609178": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-1",
+     "conf": 62,
+     "tipo": "SOR",
+     "prob_1X2": "62/22/17",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609178,
+   "local": "Uruguay",
+   "visitante": "Cabo Verde",
+   "saque_utc": "2026-06-21T22:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-1",
+    "conf": 62,
+    "tipo": "SOR",
+    "prob_1X2": "62/22/17",
+    "fuente": "auto"
+   }
+  },
+  "19609177": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "24/24/53",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609177,
+   "local": "Nueva Zelanda",
+   "visitante": "Egipto",
+   "saque_utc": "2026-06-22T01:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "24/24/53",
+    "fuente": "auto"
+   }
+  },
+  "19609146": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 72,
+     "tipo": "FAV",
+     "prob_1X2": "72/18/10",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609146,
+   "local": "Argentina",
+   "visitante": "Austria",
+   "saque_utc": "2026-06-22T17:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 72,
+    "tipo": "FAV",
+    "prob_1X2": "72/18/10",
+    "fuente": "auto"
+   }
+  },
+  "19609179": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 81,
+     "tipo": "FAV",
+     "prob_1X2": "81/14/5",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609179,
+   "local": "Francia",
+   "visitante": "Irak",
+   "saque_utc": "2026-06-22T21:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 81,
+    "tipo": "FAV",
+    "prob_1X2": "81/14/5",
+    "fuente": "auto"
+   }
+  },
+  "19609180": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "42/25/32",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609180,
+   "local": "Noruega",
+   "visitante": "Senegal",
+   "saque_utc": "2026-06-23T00:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "42/25/32",
+    "fuente": "auto"
+   }
+  },
+  "19609181": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "25/24/51",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609181,
+   "local": "Jordania",
+   "visitante": "Argelia",
+   "saque_utc": "2026-06-23T03:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "25/24/51",
+    "fuente": "auto"
+   }
+  },
+  "19609148": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 72,
+     "tipo": "FAV",
+     "prob_1X2": "72/18/10",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609148,
+   "local": "Portugal",
+   "visitante": "Uzbekistán",
+   "saque_utc": "2026-06-23T17:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 72,
+    "tipo": "FAV",
+    "prob_1X2": "72/18/10",
+    "fuente": "auto"
+   }
+  },
+  "19609183": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 72,
+     "tipo": "FAV",
+     "prob_1X2": "72/18/10",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609183,
+   "local": "Inglaterra",
+   "visitante": "Ghana",
+   "saque_utc": "2026-06-23T20:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 72,
+    "tipo": "FAV",
+    "prob_1X2": "72/18/10",
+    "fuente": "auto"
+   }
+  },
+  "19609151": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 65,
+     "tipo": "SOR",
+     "prob_1X2": "14/21/65",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609151,
+   "local": "Panamá",
+   "visitante": "Croacia",
+   "saque_utc": "2026-06-23T23:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 65,
+    "tipo": "SOR",
+    "prob_1X2": "14/21/65",
+    "fuente": "auto"
+   }
+  },
+  "19609182": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 67,
+     "tipo": "SOR",
+     "prob_1X2": "67/20/13",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609182,
+   "local": "Colombia",
+   "visitante": "R.D. Congo",
+   "saque_utc": "2026-06-24T02:00:00Z",
+   "grupo": "2",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 67,
+    "tipo": "SOR",
+    "prob_1X2": "67/20/13",
+    "fuente": "auto"
+   }
+  },
+  "19609186": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "39/25/36",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609186,
+   "local": "Bosnia-Herz.",
+   "visitante": "Qatar",
+   "saque_utc": "2026-06-24T19:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "39/25/36",
+    "fuente": "auto"
+   }
+  },
+  "19609129": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "51/24/25",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609129,
+   "local": "Suiza",
+   "visitante": "Canadá",
+   "saque_utc": "2026-06-24T19:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "51/24/25",
+    "fuente": "auto"
+   }
+  },
+  "19609132": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "22/24/54",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609132,
+   "local": "Escocia",
+   "visitante": "Brasil",
+   "saque_utc": "2026-06-24T22:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "22/24/54",
+    "fuente": "auto"
+   }
+  },
+  "19609187": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-0",
+     "conf": 71,
+     "tipo": "FAV",
+     "prob_1X2": "71/18/10",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609187,
+   "local": "Marruecos",
+   "visitante": "Haití",
+   "saque_utc": "2026-06-24T22:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-0",
+    "conf": 71,
+    "tipo": "FAV",
+    "prob_1X2": "71/18/10",
+    "fuente": "auto"
+   }
+  },
+  "19609185": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "33/25/42",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609185,
+   "local": "Rep. Checa",
+   "visitante": "México",
+   "saque_utc": "2026-06-25T01:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "33/25/42",
+    "fuente": "auto"
+   }
+  },
+  "19609184": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 59,
+     "tipo": "SOR",
+     "prob_1X2": "19/23/59",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609184,
+   "local": "Sudáfrica",
+   "visitante": "Corea del Sur",
+   "saque_utc": "2026-06-25T01:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 59,
+    "tipo": "SOR",
+    "prob_1X2": "19/23/59",
+    "fuente": "auto"
+   }
+  },
+  "19609191": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 64,
+     "tipo": "SOR",
+     "prob_1X2": "15/21/64",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609191,
+   "local": "Curazao",
+   "visitante": "Costa de Marfil",
+   "saque_utc": "2026-06-25T20:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 64,
+    "tipo": "SOR",
+    "prob_1X2": "15/21/64",
+    "fuente": "auto"
+   }
+  },
+  "19609136": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "30/25/45",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609136,
+   "local": "Ecuador",
+   "visitante": "Alemania",
+   "saque_utc": "2026-06-25T20:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "30/25/45",
+    "fuente": "auto"
+   }
+  },
+  "19609137": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "0-2",
+     "conf": 68,
+     "tipo": "SOR",
+     "prob_1X2": "12/20/68",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609137,
+   "local": "Túnez",
+   "visitante": "Países Bajos",
+   "saque_utc": "2026-06-25T23:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "0-2",
+    "conf": 68,
+    "tipo": "SOR",
+    "prob_1X2": "12/20/68",
+    "fuente": "auto"
+   }
+  },
+  "19609190": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "44/25/31",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609190,
+   "local": "Japón",
+   "visitante": "Suecia",
+   "saque_utc": "2026-06-25T23:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "44/25/31",
+    "fuente": "auto"
+   }
+  },
+  "19609188": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "27/24/49",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609188,
+   "local": "Paraguay",
+   "visitante": "Australia",
+   "saque_utc": "2026-06-26T02:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "27/24/49",
+    "fuente": "auto"
+   }
+  },
+  "19609189": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "34/25/41",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609189,
+   "local": "Turquía",
+   "visitante": "EE. UU.",
+   "saque_utc": "2026-06-26T02:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "34/25/41",
+    "fuente": "auto"
+   }
+  },
+  "19609144": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 24,
+     "tipo": "EMP",
+     "prob_1X2": "23/24/53",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609144,
+   "local": "Noruega",
+   "visitante": "Francia",
+   "saque_utc": "2026-06-26T19:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 24,
+    "tipo": "EMP",
+    "prob_1X2": "23/24/53",
+    "fuente": "auto"
+   }
+  },
+  "19609195": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-1",
+     "conf": 62,
+     "tipo": "SOR",
+     "prob_1X2": "62/22/17",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609195,
+   "local": "Senegal",
+   "visitante": "Irak",
+   "saque_utc": "2026-06-26T19:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-1",
+    "conf": 62,
+    "tipo": "SOR",
+    "prob_1X2": "62/22/17",
+    "fuente": "auto"
+   }
+  },
+  "19609194": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "32/25/42",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609194,
+   "local": "Cabo Verde",
+   "visitante": "Arabia Saudita",
+   "saque_utc": "2026-06-27T00:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "32/25/42",
+    "fuente": "auto"
+   }
+  },
+  "19609141": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 65,
+     "tipo": "SOR",
+     "prob_1X2": "14/21/65",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609141,
+   "local": "Uruguay",
+   "visitante": "España",
+   "saque_utc": "2026-06-27T00:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 65,
+    "tipo": "SOR",
+    "prob_1X2": "14/21/65",
+    "fuente": "auto"
+   }
+  },
+  "19609192": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-2",
+     "conf": 65,
+     "tipo": "SOR",
+     "prob_1X2": "14/20/65",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609192,
+   "local": "Nueva Zelanda",
+   "visitante": "Bélgica",
+   "saque_utc": "2026-06-27T03:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-2",
+    "conf": 65,
+    "tipo": "SOR",
+    "prob_1X2": "14/20/65",
+    "fuente": "auto"
+   }
+  },
+  "19609193": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "31/25/44",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609193,
+   "local": "Egipto",
+   "visitante": "Irán",
+   "saque_utc": "2026-06-27T03:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "31/25/44",
+    "fuente": "auto"
+   }
+  },
+  "19609150": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "2-1",
+     "conf": 61,
+     "tipo": "SOR",
+     "prob_1X2": "61/22/17",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609150,
+   "local": "Croacia",
+   "visitante": "Ghana",
+   "saque_utc": "2026-06-27T21:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "2-1",
+    "conf": 61,
+    "tipo": "SOR",
+    "prob_1X2": "61/22/17",
+    "fuente": "auto"
+   }
+  },
+  "19609199": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "0-2",
+     "conf": 76,
+     "tipo": "FAV",
+     "prob_1X2": "8/16/76",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609199,
+   "local": "Panamá",
+   "visitante": "Inglaterra",
+   "saque_utc": "2026-06-27T21:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "0-2",
+    "conf": 76,
+    "tipo": "FAV",
+    "prob_1X2": "8/16/76",
+    "fuente": "auto"
+   }
+  },
+  "19609196": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "41/25/33",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609196,
+   "local": "R.D. Congo",
+   "visitante": "Uzbekistán",
+   "saque_utc": "2026-06-27T23:30:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "41/25/33",
+    "fuente": "auto"
+   }
+  },
+  "19609147": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "37/25/38",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609147,
+   "local": "Colombia",
+   "visitante": "Portugal",
+   "saque_utc": "2026-06-27T23:30:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "37/25/38",
+    "fuente": "auto"
+   }
+  },
+  "19609197": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "1-1",
+     "conf": 25,
+     "tipo": "EMP",
+     "prob_1X2": "34/25/41",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609197,
+   "local": "Argelia",
+   "visitante": "Austria",
+   "saque_utc": "2026-06-28T02:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "1-1",
+    "conf": 25,
+    "tipo": "EMP",
+    "prob_1X2": "34/25/41",
+    "fuente": "auto"
+   }
+  },
+  "19609198": {
+   "history": [
+    {
+     "date": "16 jun",
+     "pick": "0-2",
+     "conf": 86,
+     "tipo": "FAV",
+     "prob_1X2": "3/11/86",
+     "fuente": "auto"
+    }
+   ],
+   "resultado": null,
+   "fixtureId": 19609198,
+   "local": "Jordania",
+   "visitante": "Argentina",
+   "saque_utc": "2026-06-28T02:00:00Z",
+   "grupo": "3",
+   "estado": "pendiente",
+   "actual": {
+    "date": "16 jun",
+    "pick": "0-2",
+    "conf": 86,
+    "tipo": "FAV",
+    "prob_1X2": "3/11/86",
+    "fuente": "auto"
+   }
+  }
+ },
+ "updated": "2026-06-16T13:31:20.254726+00:00"
+}

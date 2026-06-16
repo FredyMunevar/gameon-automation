@@ -266,11 +266,8 @@ def predict(hk, ak, host_home, elo):
     return rec, dict(ph=round(ph*100), pd=round(pd*100), pa=round(pa*100),
                      modal=mod, evpick=evp, type=typ, conf=round(conf*100))
 
-def compute_live_batch(fixtures, user_id, now, date_filter=None):
-    """Modelo vivo: Elo acumulado + predicción de todos los NS enviables."""
-    elo, applied, skipped_ft = build_updated_elo(fixtures)
-    log(f"Elo bayesiano: {applied} partidos FT aplicados"
-        + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else "") + "\n")
+def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
+    """Modelo vivo: predicción de todos los NS enviables (Elo ya calculado)."""
 
     batch, record, skipped = [], [], 0
     for m in sorted(fixtures, key=lambda x: x.get("date") or ""):
@@ -298,7 +295,76 @@ def compute_live_batch(fixtures, user_id, now, date_filter=None):
                        "pick_local": hs, "pick_visitante": as_, "confianza_%": md["conf"],
                        "tipo": md["type"], "prob_1X2": f"{md['ph']}/{md['pd']}/{md['pa']}",
                        "saque_utc": m.get("date")})
-    return batch, record, skipped, applied
+    return batch, record, skipped
+
+# --------------------------- historial para el tablero (Vercel) ---------------------------
+def _seed_from_model(fixtures):
+    """Mapa fixtureId -> historial hardcodeado de model.py (los 24 partidos originales)."""
+    idx = {}
+    for m in fixtures:
+        loc = (m.get("local") or {}).get("name"); vis = (m.get("visitor") or {}).get("name")
+        if loc and vis:
+            idx[(elo_key(loc), elo_key(vis))] = str(m["fixtureId"])
+    seed = {}
+    for mm in model.matches:
+        try:
+            hk, ak = model.KEY[mm["home"][0]], model.KEY[mm["away"][0]]
+        except KeyError:
+            continue
+        fid = idx.get((hk, ak))
+        if not fid:
+            continue
+        seed[fid] = [{"date": h[1], "pick": f"{h[2]}-{h[3]}", "conf": h[4],
+                      "tipo": h[5], "fuente": "manual", "etapa": h[0]} for h in mm["hist"]]
+    return seed
+
+def update_history(fixtures, elo, now, path="dashboard/data/history.json"):
+    """Crea/actualiza el historial por partido: siembra el viejo y agrega una foto
+    cuando el pick cambia; registra el resultado cuando el partido termina (FT)."""
+    try:
+        data = json.load(open(path, encoding="utf-8"))
+    except Exception:
+        data = {"matches": {}}
+    data.setdefault("matches", {})
+    seed = _seed_from_model(fixtures)
+    nb = now.astimezone(BOGOTA)
+    today = f"{nb.day} {MESES_ES[nb.month]}"
+    for m in sorted(fixtures, key=lambda x: x.get("date") or ""):
+        loc, vis = m.get("local") or {}, m.get("visitor") or {}
+        hn, vn = loc.get("name"), vis.get("name")
+        if not (hn and vn):
+            continue
+        hk, ak = elo_key(hn), elo_key(vn)
+        if hk not in elo or ak not in elo:
+            continue  # placeholders/knockout sin equipos
+        fid = str(m["fixtureId"])
+        e = data["matches"].setdefault(fid, {"history": [], "resultado": None})
+        e["fixtureId"] = m["fixtureId"]; e["local"] = es_name(hn); e["visitante"] = es_name(vn)
+        e["saque_utc"] = m.get("date"); e["grupo"] = (m.get("league") or {}).get("round")
+        if not e["history"] and fid in seed:
+            e["history"] = list(seed[fid])
+        st = fstate(m)
+        if st == "FT":
+            gh, ga = loc.get("score"), vis.get("score")
+            if gh is not None and ga is not None:
+                e["resultado"] = f"{gh}-{ga}"
+            e["estado"] = "jugado"
+        elif st == "NS":
+            (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
+            pick = f"{hs}-{as_}"
+            if not e["history"] or e["history"][-1]["pick"] != pick:
+                e["history"].append({"date": today, "pick": pick, "conf": md["conf"],
+                                     "tipo": md["type"], "prob_1X2": f"{md['ph']}/{md['pd']}/{md['pa']}",
+                                     "fuente": "auto"})
+            e["estado"] = "pendiente"
+        else:
+            e["estado"] = "en_juego"
+        e["actual"] = e["history"][-1] if e["history"] else None
+    data["updated"] = now.isoformat()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+    return len(data["matches"])
 
 # --------------------------- modo respaldo: picks.json ---------------------------
 def load_pending(date_filter=None):
@@ -369,12 +435,16 @@ def main():
         + (f"  filtro={date_filter}" if date_filter else "") + "\n")
 
     record, ft_applied = [], 0
+    live = not args.from_picks
     if args.from_picks:
         batch, skipped = compute_picks_batch(fixtures, user_id, now, date_filter)
     else:
-        batch, record, skipped, ft_applied = compute_live_batch(fixtures, user_id, now, date_filter)
-
-    live = not args.from_picks
+        elo, ft_applied, skipped_ft = build_updated_elo(fixtures)
+        log(f"Elo bayesiano: {ft_applied} partidos FT aplicados"
+            + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else "") + "\n")
+        batch, record, skipped = compute_live_batch(fixtures, user_id, now, elo, date_filter)
+        n_hist = update_history(fixtures, elo, now)
+        log(f"(historial actualizado: {n_hist} partidos en dashboard/data/history.json)")
     if record:
         with open("picks_generated.json", "w", encoding="utf-8") as f:
             json.dump({"generado_utc": now.isoformat(), "picks": record}, f, ensure_ascii=False, indent=1)
