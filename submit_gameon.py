@@ -102,7 +102,29 @@ def _fmt_kickoff(iso):
     h = dt.hour % 12 or 12
     return f"{DIAS_ES[dt.weekday()]} {dt.day} {MESES_ES[dt.month]}", f"{h}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}"
 
-def write_html_summary(record, ft_applied, sent, dry, path="summary.html"):
+def _ranking_html(rk):
+    if not rk or rk.get("position") is None:
+        return ""
+    pos, total, pts = rk["position"], rk.get("total"), rk.get("points")
+    old, exact = rk.get("old"), rk.get("exact")
+    mov = ""
+    if old:
+        if pos < old:   mov = f' <span style="color:#16a34a;font-size:13px;">▲ {old - pos}</span>'
+        elif pos > old: mov = f' <span style="color:#dc2626;font-size:13px;">▼ {pos - old}</span>'
+        else:           mov = ' <span style="color:#94a3b8;font-size:13px;">=</span>'
+    de = f' <span style="font-size:14px;font-weight:400;color:#64748b;">de {total}</span>' if total else ""
+    ex = f' · {exact} exacto(s)' if exact is not None else ""
+    return (
+        '<div style="display:flex;gap:18px;align-items:center;justify-content:center;'
+        'background:#0f172a;color:#fff;border-radius:12px;padding:14px 18px;margin:0 0 14px;">'
+        '<div style="text-align:center;"><div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px;">Puesto</div>'
+        f'<div style="font-size:26px;font-weight:800;line-height:1.1;">{pos}{de}{mov}</div></div>'
+        '<div style="width:1px;height:34px;background:#334155;"></div>'
+        '<div style="text-align:center;"><div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px;">Puntos</div>'
+        f'<div style="font-size:26px;font-weight:800;line-height:1.1;">{pts}<span style="font-size:13px;font-weight:400;opacity:.7;">{ex}</span></div></div>'
+        '</div>')
+
+def write_html_summary(record, ft_applied, sent, dry, ranking=None, path="summary.html"):
     now_bog = datetime.datetime.now(BOGOTA)
     verbo = "calcularon (dry-run)" if dry else "enviaron"
     rows, last_day = "", None
@@ -149,6 +171,7 @@ def write_html_summary(record, ft_applied, sent, dry, path="summary.html"):
         '<div style="font-size:20px;font-weight:800;">⚽ Polla GameOn — picks del día</div>'
         f'<div style="opacity:.8;font-size:13px;margin-top:4px;">{_bogota_str(now_bog)} (Bogotá)</div></div>'
         '<div style="background:#fff;padding:18px 22px;">'
+        + _ranking_html(ranking) +
         f'<div style="font-size:16px;">Se {verbo} <b style="font-size:22px;">{sent}</b> pronóstico(s).</div>'
         f'<div style="color:#64748b;font-size:13px;margin-top:6px;">Elo actualizado con '
         f'<b>{ft_applied}</b> partido(s) ya jugado(s). Solo se tocan partidos sin empezar.</div>'
@@ -198,6 +221,20 @@ def get_user_id(token):
 def fetch_fixtures(token, group_id):
     r = api("GET", f"fixtures/groups/{group_id}", token); r.raise_for_status()
     return r.json()
+
+def fetch_ranking(token, group_id):
+    """Posición y puntos del usuario en el grupo (de GET groups -> userRanking)."""
+    try:
+        r = api("GET", "groups", token); r.raise_for_status()
+        for g in r.json():
+            if str(g.get("groupId")) == str(group_id):
+                ur = g.get("userRanking") or {}
+                return {"position": ur.get("position"), "points": ur.get("points"),
+                        "old": ur.get("oldPosition"), "exact": ur.get("exactPoints"),
+                        "total": g.get("totalUsers"), "group": g.get("name")}
+    except Exception as e:
+        log(f"(no se pudo leer ranking: {e})")
+    return None
 
 def probe(token):
     for path in ["users/me", "groups", f"fixtures/groups/{GROUP_ID or '<GROUP_ID>'}"]:
@@ -469,7 +506,7 @@ def main():
     log(("DRY-RUN — " if dry else "") + f"{mode}  [userId={user_id}]"
         + (f"  filtro={date_filter}" if date_filter else "") + "\n")
 
-    record, ft_applied = [], 0
+    record, ft_applied, ranking = [], 0, None
     live = not args.from_picks
     if args.from_picks:
         batch, skipped = compute_picks_batch(fixtures, user_id, now, date_filter)
@@ -480,18 +517,23 @@ def main():
         batch, record, skipped = compute_live_batch(fixtures, user_id, now, elo, date_filter)
         n_dash = build_dashboard_data(fixtures, elo, now)
         log(f"(tablero actualizado: {n_dash} partidos en dashboard/data/model.json)")
+        ranking = fetch_ranking(token, GROUP_ID)
+        if ranking and ranking.get("position") is not None:
+            log(f"(ranking: puesto {ranking['position']}"
+                + (f"/{ranking['total']}" if ranking.get("total") else "")
+                + f", {ranking['points']} pts)")
     if record:
         with open("picks_generated.json", "w", encoding="utf-8") as f:
             json.dump({"generado_utc": now.isoformat(), "picks": record}, f, ensure_ascii=False, indent=1)
         log(f"\n(picks_generated.json escrito: {len(record)} picks calculados)")
 
     if not batch:
-        if live: write_html_summary(record, ft_applied, 0, dry)
+        if live: write_html_summary(record, ft_applied, 0, dry, ranking=ranking)
         log(f"\nNada que enviar ({skipped} omitidos)."); return
 
     log(f"\n{'DRY-RUN — ' if dry else ''}batch de {len(batch)} pronóstico(s).")
     if dry:
-        if live: write_html_summary(record, ft_applied, len(batch), dry=True)
+        if live: write_html_summary(record, ft_applied, len(batch), dry=True, ranking=ranking)
         log("  " + json.dumps(batch, ensure_ascii=False))
         log("\n(dry-run) POST fixtures/forecasts. Usa --go para enviar."); return
 
@@ -500,7 +542,7 @@ def main():
     log("  " + r.text[:300])
     if not r.ok:
         sys.exit("El envío falló.")
-    if live: write_html_summary(record, ft_applied, len(batch), dry=False)
+    if live: write_html_summary(record, ft_applied, len(batch), dry=False, ranking=ranking)
     log(f"\n{len(batch)} pronóstico(s) enviado(s). ({skipped} omitidos por alcance/sin Elo)")
 
 if __name__ == "__main__":
