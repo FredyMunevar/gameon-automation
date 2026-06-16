@@ -44,7 +44,7 @@ Solo se envían picks de partidos que **NO han empezado** (`state == "NS"`) y co
 | [`model.py`](model.py) | Motor Elo/Poisson + backtest (importable). |
 | [`picks.json`](picks.json) | Picks estáticos (respaldo del modo `--from-picks`). |
 | [`dashboard/`](dashboard) | App Next.js del tablero web (se despliega en Vercel). |
-| `dashboard/data/history.json` | Historial por partido (lo actualiza y commitea el workflow). |
+| `dashboard/data/model.json` | Datos del tablero (matches + historial + backtest); lo actualiza y commitea el workflow. |
 | [`.github/workflows/polla.yml`](.github/workflows/polla.yml) | GitHub Actions, cron diario. |
 | `.env` | Credenciales locales (gitignored, **nunca** se versiona). |
 | `wc_model.json`, `picks_generated.json`, `summary.html` | Artefactos generados (gitignored). |
@@ -109,9 +109,9 @@ Al terminar cada corrida (corra bien o **falle**), el workflow envía un correo 
 
 ## Tablero web (Vercel)
 
-[`dashboard/`](dashboard) es una app **Next.js** (App Router) que muestra, desde cualquier dispositivo, cada pick con su **historial de cambios** y, en los partidos jugados, el **resultado y los puntos** (6/4/3). Lee `dashboard/data/history.json`.
+[`dashboard/`](dashboard) es una app **Next.js** (App Router) que muestra, desde cualquier dispositivo: tarjetas por partido con banderas y barra de probabilidad 1X2, tabs por grupo, un resumen con aciertos, el backtest del modelo, y un **modal por partido con la línea de tiempo "Historial de predicciones"** (cada etapa con su razón) + resultado y puntos (6/4/3). Lee `dashboard/data/model.json` (forma `{matches[], backtest, params}`, con `predictions[]`, `model{}` y `result{}` por partido).
 
-- **Datos:** cada corrida del workflow actualiza `dashboard/data/history.json` (agrega una "foto" cuando un pick cambia; siembra el histórico viejo de `model.py`; registra resultados al terminar) y lo **commitea** al repo. Vercel redespliega solo en cada push → el tablero queda al día.
+- **Datos:** cada corrida del workflow regenera `dashboard/data/model.json` (acumula el historial: agrega una predicción cuando el pick cambia; siembra el histórico viejo de `model.py`; registra resultados al terminar) y lo **commitea** al repo. Vercel redespliega solo en cada push → el tablero queda al día.
 - **Despliegue en Vercel:** proyecto con **Root Directory = `dashboard`**, framework Next.js (autodetectado). Sin variables de entorno (lee un archivo del repo). Apuntar el subdominio deseado.
 - **Local:** `cd dashboard && npm install && npm run dev` → http://localhost:3000
 

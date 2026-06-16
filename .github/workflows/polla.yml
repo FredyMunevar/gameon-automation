@@ -67,13 +67,13 @@ jobs:
             } > summary.html
           fi
 
-      - name: Guardar historial (alimenta el tablero en Vercel)
+      - name: Guardar datos del tablero (alimenta Vercel)
         if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dashboard/data/history.json
-          git diff --staged --quiet || git commit -m "history: actualización $(date -u +%FT%TZ)"
+          git add dashboard/data/model.json
+          git diff --staged --quiet || git commit -m "tablero: actualización $(date -u +%FT%TZ)"
           git push origin HEAD:main
 
       - name: Notificar por correo (siempre)

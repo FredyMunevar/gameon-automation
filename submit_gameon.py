@@ -264,7 +264,8 @@ def predict(hk, ak, host_home, elo):
     po = (rec[0] > rec[1]) - (rec[0] < rec[1])
     conf = ph if po > 0 else (pd if po == 0 else pa)
     return rec, dict(ph=round(ph*100), pd=round(pd*100), pa=round(pa*100),
-                     modal=mod, evpick=evp, type=typ, conf=round(conf*100))
+                     modal=mod, evpick=evp, ev=round(ev, 2), lh=round(lh, 2), la=round(la, 2),
+                     coin=coin, type=typ, conf=round(conf*100))
 
 def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
     """Modelo vivo: predicción de todos los NS enviables (Elo ya calculado)."""
@@ -297,38 +298,50 @@ def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
                        "saque_utc": m.get("date")})
     return batch, record, skipped
 
-# --------------------------- historial para el tablero (Vercel) ---------------------------
-def _seed_from_model(fixtures):
-    """Mapa fixtureId -> historial hardcodeado de model.py (los 24 partidos originales)."""
-    idx = {}
-    for m in fixtures:
-        loc = (m.get("local") or {}).get("name"); vis = (m.get("visitor") or {}).get("name")
-        if loc and vis:
-            idx[(elo_key(loc), elo_key(vis))] = str(m["fixtureId"])
-    seed = {}
-    for mm in model.matches:
-        try:
-            hk, ak = model.KEY[mm["home"][0]], model.KEY[mm["away"][0]]
-        except KeyError:
-            continue
-        fid = idx.get((hk, ak))
-        if not fid:
-            continue
-        seed[fid] = [{"date": h[1], "pick": f"{h[2]}-{h[3]}", "conf": h[4],
-                      "tipo": h[5], "fuente": "manual", "etapa": h[0]} for h in mm["hist"]]
-    return seed
+# --------------------------- datos del tablero (Vercel) ---------------------------
+# Mapas derivados de model.py: bandera, grupo, debut por equipo (español); y
+# metadatos (estadio, nota, historial inicial) por par de equipos de los 24 originales.
+_FLAG, _GID, _DEBUT, _META = {}, {}, {}, {}
+for _mm in model.matches:
+    for _side in ("home", "away"):
+        _t = _mm[_side]
+        _FLAG[_t[0]] = _t[1]
+        _DEBUT[_t[0]] = bool(len(_t) > 2 and _t[2])
+        _GID[_t[0]] = _mm["gid"]
+    _META[(_mm["home"][0], _mm["away"][0])] = {
+        "venue": _mm["venue"], "note": _mm["note"],
+        "hist": [{"stage": h[0], "date": h[1], "hs": h[2], "as_": h[3],
+                  "conf": h[4], "type": h[5], "reason": h[6]} for h in _mm["hist"]],
+    }
 
-def update_history(fixtures, elo, now, path="dashboard/data/history.json"):
-    """Crea/actualiza el historial por partido: siembra el viejo y agrega una foto
-    cuando el pick cambia; registra el resultado cuando el partido termina (FT)."""
+def _reason(hs, as_, md):
+    p = f"Motor Poisson-Elo. 1X2 = {md['ph']}/{md['pd']}/{md['pa']}%. "
+    if md["coin"]:
+        return (p + "Sin favorito claro (moneda al aire): recomiendo 1-1, el marcador más común "
+                "y con opción al bono por exacto.")
+    mh, ma = md["modal"]
+    return (p + f"Favorito claro: me comprometo con {hs}-{as_} para asegurar el piso de puntos. "
+            f"Nota: el más probable es {mh}-{ma}.")
+
+def model_backtest_params():
+    """Backtest de los 12 jugados + parámetros, tal como los calcula model.py (fijo)."""
+    import io, contextlib, tempfile
+    tmp = os.path.join(tempfile.gettempdir(), "wc_model_tmp.json")
+    with contextlib.redirect_stdout(io.StringIO()):
+        model.run_report(tmp)
+    d = json.load(open(tmp, encoding="utf-8"))
+    return d.get("backtest"), d.get("params")
+
+def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
+    """Genera el JSON que consume el tablero (forma DB: matches[] con predictions[],
+    model{}, result{}). Acumula el historial: agrega una predicción cuando el pick cambia."""
     try:
-        data = json.load(open(path, encoding="utf-8"))
+        prev = {str(m.get("fixtureId")): m for m in json.load(open(path, encoding="utf-8")).get("matches", [])}
     except Exception:
-        data = {"matches": {}}
-    data.setdefault("matches", {})
-    seed = _seed_from_model(fixtures)
+        prev = {}
     nb = now.astimezone(BOGOTA)
-    today = f"{nb.day} {MESES_ES[nb.month]}"
+    today = f"{nb.day} {MES[nb.month]}"   # p.ej. "16 Jun"
+    out = []
     for m in sorted(fixtures, key=lambda x: x.get("date") or ""):
         loc, vis = m.get("local") or {}, m.get("visitor") or {}
         hn, vn = loc.get("name"), vis.get("name")
@@ -338,33 +351,55 @@ def update_history(fixtures, elo, now, path="dashboard/data/history.json"):
         if hk not in elo or ak not in elo:
             continue  # placeholders/knockout sin equipos
         fid = str(m["fixtureId"])
-        e = data["matches"].setdefault(fid, {"history": [], "resultado": None})
-        e["fixtureId"] = m["fixtureId"]; e["local"] = es_name(hn); e["visitante"] = es_name(vn)
-        e["saque_utc"] = m.get("date"); e["grupo"] = (m.get("league") or {}).get("round")
-        if not e["history"] and fid in seed:
-            e["history"] = list(seed[fid])
+        hes, ves = es_name(hn), es_name(vn)
+        meta = _META.get((hes, ves), {})
+        ko = kickoff(m)
+        date_lbl = f"{MES[ko.astimezone(BOGOTA).month]} {ko.astimezone(BOGOTA).day}" if ko else ""
+        (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
+
+        # historial acumulado: arranca del previo, o se siembra del histórico viejo
+        preds = (prev.get(fid) or {}).get("predictions")
+        if preds is None:
+            preds = list(meta.get("hist", []))
         st = fstate(m)
+        if st == "NS":
+            if not preds or preds[-1]["hs"] != hs or preds[-1]["as_"] != as_:
+                preds.append({"stage": "Modelo Poisson-Elo", "date": today, "hs": hs, "as_": as_,
+                              "conf": md["conf"], "type": md["type"], "reason": _reason(hs, as_, md)})
+            cur = {"hs": hs, "as_": as_, "conf": md["conf"], "type": md["type"]}
+        else:
+            # FT/en juego: el pick queda congelado en la última predicción registrada
+            last = preds[-1] if preds else {"hs": hs, "as_": as_, "conf": md["conf"], "type": md["type"]}
+            cur = {"hs": last["hs"], "as_": last["as_"], "conf": last.get("conf", md["conf"]),
+                   "type": last.get("type", md["type"])}
+
+        entry = {
+            "fixtureId": m["fixtureId"],
+            "gid": _GID.get(hes, (m.get("league") or {}).get("round", "?")),
+            "date": date_lbl,
+            "venue": meta.get("venue", ""),
+            "home": {"name": hes, "flag": _FLAG.get(hes, "🏳️"), **({"debut": True} if _DEBUT.get(hes) else {})},
+            "away": {"name": ves, "flag": _FLAG.get(ves, "🏳️"), **({"debut": True} if _DEBUT.get(ves) else {})},
+            "note": meta.get("note", ""),
+            "predictions": preds,
+            "hs": cur["hs"], "as_": cur["as_"], "conf": cur["conf"], "type": cur["type"],
+            "model": {"ph": md["ph"], "pd": md["pd"], "pa": md["pa"], "lh": md["lh"], "la": md["la"],
+                      "modal": {"hs": md["modal"][0], "as_": md["modal"][1]},
+                      "evPick": {"hs": md["evpick"][0], "as_": md["evpick"][1]},
+                      "ev": md["ev"], "coin": md["coin"]},
+        }
         if st == "FT":
             gh, ga = loc.get("score"), vis.get("score")
             if gh is not None and ga is not None:
-                e["resultado"] = f"{gh}-{ga}"
-            e["estado"] = "jugado"
-        elif st == "NS":
-            (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
-            pick = f"{hs}-{as_}"
-            if not e["history"] or e["history"][-1]["pick"] != pick:
-                e["history"].append({"date": today, "pick": pick, "conf": md["conf"],
-                                     "tipo": md["type"], "prob_1X2": f"{md['ph']}/{md['pd']}/{md['pa']}",
-                                     "fuente": "auto"})
-            e["estado"] = "pendiente"
-        else:
-            e["estado"] = "en_juego"
-        e["actual"] = e["history"][-1] if e["history"] else None
-    data["updated"] = now.isoformat()
+                entry["result"] = {"hs": gh, "as_": ga}
+        out.append(entry)
+
+    backtest, params = model_backtest_params()
+    data = {"matches": out, "backtest": backtest, "params": params, "updated": now.isoformat()}
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=1)
-    return len(data["matches"])
+        json.dump(data, f, ensure_ascii=False)
+    return len(out)
 
 # --------------------------- modo respaldo: picks.json ---------------------------
 def load_pending(date_filter=None):
@@ -443,8 +478,8 @@ def main():
         log(f"Elo bayesiano: {ft_applied} partidos FT aplicados"
             + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else "") + "\n")
         batch, record, skipped = compute_live_batch(fixtures, user_id, now, elo, date_filter)
-        n_hist = update_history(fixtures, elo, now)
-        log(f"(historial actualizado: {n_hist} partidos en dashboard/data/history.json)")
+        n_dash = build_dashboard_data(fixtures, elo, now)
+        log(f"(tablero actualizado: {n_dash} partidos en dashboard/data/model.json)")
     if record:
         with open("picks_generated.json", "w", encoding="utf-8") as f:
             json.dump({"generado_utc": now.isoformat(), "picks": record}, f, ensure_ascii=False, indent=1)
