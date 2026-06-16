@@ -24,7 +24,9 @@ name: Enviar picks polla
 
 on:
   schedule:
-    - cron: "0 13 * * *"        # 08:00 Bogotá, todos los días
+    # 08:17 Bogotá. NO usamos el minuto :00 a propósito: es el horario más
+    # congestionado de GitHub Actions y los cron se retrasan/omiten más ahí.
+    - cron: "17 13 * * *"
   workflow_dispatch: {}          # permite dispararlo a mano desde la pestaña Actions
 
 jobs:
