@@ -5,6 +5,12 @@
 #   GAMEON_EMAIL       mi correo de GameOn
 #   GAMEON_PASSWORD    mi contraseña  (SECRETO)
 #   GAMEON_GROUP_ID    32534  (la polla del Mundial)
+#   --- notificación por correo ---
+#   MAIL_SERVER        host SMTP (p.ej. smtp.gmail.com)
+#   MAIL_PORT          puerto SMTP (465 SSL)
+#   MAIL_USERNAME      usuario SMTP (mi correo)
+#   MAIL_PASSWORD      app password del correo (SECRETO)
+#   MAIL_TO            destinatario del aviso
 #
 # Qué hace cada corrida (modelo vivo): login -> lee el calendario con resultados ->
 # actualiza el Elo bayesiano ACUMULADO con todos los partidos FT -> re-predice TODOS
@@ -30,10 +36,28 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
+
       - name: Enviar picks pendientes (solo partidos sin empezar)
+        id: run
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           GAMEON_EMAIL:     ${{ secrets.GAMEON_EMAIL }}
           GAMEON_PASSWORD:  ${{ secrets.GAMEON_PASSWORD }}
           GAMEON_GROUP_ID:  ${{ secrets.GAMEON_GROUP_ID }}
-        run: python3 submit_gameon.py --go
+        run: |
+          set -o pipefail
+          python3 submit_gameon.py --go 2>&1 | tee run.log
+
+      - name: Notificar por correo (siempre)
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port:    ${{ secrets.MAIL_PORT }}
+          secure:         true
+          username:       ${{ secrets.MAIL_USERNAME }}
+          password:       ${{ secrets.MAIL_PASSWORD }}
+          from:           Polla GameOn <${{ secrets.MAIL_USERNAME }}>
+          to:             ${{ secrets.MAIL_TO }}
+          subject:        "Polla GameOn — corrida ${{ job.status }} (${{ github.run_id }})"
+          body:           file://run.log
