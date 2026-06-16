@@ -7,6 +7,8 @@ jadx-out/
 # Artefactos generados por el modelo
 wc_model.json
 picks_generated.json
+summary.html
+run.log
 # Python
 __pycache__/
 *.pyc

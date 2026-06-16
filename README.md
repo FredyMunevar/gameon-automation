@@ -93,7 +93,7 @@ gh run watch
 
 ### Notificación por correo
 
-Al terminar cada corrida (corra bien o **falle**), el workflow envía un correo con el resumen y la lista de picks (cuerpo = salida del script). Usa [`dawidd6/action-send-mail`](https://github.com/dawidd6/action-send-mail) vía SMTP. Secrets necesarios:
+Al terminar cada corrida (corra bien o **falle**), el workflow envía un correo con un **resumen HTML** legible: conteo de picks, partidos usados para el Elo, y una tabla agrupada por día con cada partido, su marcador, probabilidad 1X2, tipo (Favorito/Inclinado/Parejo) y hora de Bogotá. El HTML lo genera `submit_gameon.py` (`summary.html`); si la corrida falla, el correo trae el log completo. Usa [`dawidd6/action-send-mail`](https://github.com/dawidd6/action-send-mail) vía SMTP. Secrets necesarios:
 
 | Secret | Ejemplo |
 |---|---|

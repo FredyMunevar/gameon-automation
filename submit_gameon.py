@@ -81,6 +81,72 @@ API_TO_ES = {
 
 def log(*a): print(*a, flush=True)
 
+# --------------------------- resumen HTML para el correo ---------------------------
+MESES_ES = {1:"ene",2:"feb",3:"mar",4:"abr",5:"may",6:"jun",7:"jul",8:"ago",9:"sep",10:"oct",11:"nov",12:"dic"}
+DIAS_ES  = {0:"lun",1:"mar",2:"mié",3:"jue",4:"vie",5:"sáb",6:"dom"}
+TIPO_LABEL = {  # codigo -> (etiqueta, color_texto, color_fondo)
+    "FAV": ("Favorito", "#15803d", "#dcfce7"),
+    "SOR": ("Inclinado", "#b45309", "#fef3c7"),
+    "EMP": ("Parejo",   "#1d4ed8", "#dbeafe"),
+}
+
+def _bogota_str(dt):
+    h = dt.hour % 12 or 12
+    return f"{dt.day} {MESES_ES[dt.month]} {dt.year}, {h}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}"
+
+def _fmt_kickoff(iso):
+    try:
+        dt = datetime.datetime.fromisoformat((iso or "").replace("Z", "+00:00")).astimezone(BOGOTA)
+    except Exception:
+        return "", ""
+    h = dt.hour % 12 or 12
+    return f"{DIAS_ES[dt.weekday()]} {dt.day} {MESES_ES[dt.month]}", f"{h}:{dt.minute:02d} {'am' if dt.hour < 12 else 'pm'}"
+
+def write_html_summary(record, ft_applied, sent, dry, path="summary.html"):
+    now_bog = datetime.datetime.now(BOGOTA)
+    verbo = "calcularon (dry-run)" if dry else "enviaron"
+    rows, last_day = "", None
+    for r in record:
+        fecha, hora = _fmt_kickoff(r.get("saque_utc"))
+        if fecha != last_day:
+            rows += (f'<tr><td colspan="3" style="padding:16px 10px 6px;font-weight:700;'
+                     f'color:#475569;font-size:13px;text-transform:capitalize;">{fecha}</td></tr>')
+            last_day = fecha
+        lbl, fg, bg = TIPO_LABEL.get(r["tipo"], (r["tipo"], "#475569", "#e2e8f0"))
+        chip = (f'<span style="background:{bg};color:{fg};padding:2px 9px;border-radius:11px;'
+                f'font-size:12px;font-weight:600;white-space:nowrap;">{lbl} · {r["confianza_%"]}%</span>')
+        rows += (
+            '<tr>'
+            f'<td style="padding:9px 10px;border-bottom:1px solid #eef2f7;font-size:14px;">'
+            f'{r["local"]} &nbsp;<b style="font-size:15px;">{r["pick_local"]}-{r["pick_visitante"]}</b>&nbsp; {r["visitante"]}'
+            f'<div style="color:#94a3b8;font-size:11px;margin-top:2px;">prob. 1X2: {r["prob_1X2"]}</div></td>'
+            f'<td style="padding:9px 10px;border-bottom:1px solid #eef2f7;text-align:center;">{chip}</td>'
+            f'<td style="padding:9px 10px;border-bottom:1px solid #eef2f7;color:#64748b;font-size:13px;white-space:nowrap;">{hora}</td>'
+            '</tr>')
+    if not rows:
+        rows = ('<tr><td style="padding:18px 10px;color:#64748b;">No había partidos por enviar '
+                'en esta corrida (todos empezados/terminados o sin equipos definidos).</td></tr>')
+    html = (
+        '<!doctype html><html><body style="margin:0;background:#f1f5f9;'
+        'font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">'
+        '<div style="max-width:640px;margin:0 auto;padding:20px;">'
+        '<div style="background:#0f172a;color:#fff;border-radius:14px 14px 0 0;padding:20px 22px;">'
+        '<div style="font-size:20px;font-weight:800;">⚽ Polla GameOn — picks del día</div>'
+        f'<div style="opacity:.8;font-size:13px;margin-top:4px;">{_bogota_str(now_bog)} (Bogotá)</div></div>'
+        '<div style="background:#fff;padding:18px 22px;">'
+        f'<div style="font-size:16px;">Se {verbo} <b style="font-size:22px;">{sent}</b> pronóstico(s).</div>'
+        f'<div style="color:#64748b;font-size:13px;margin-top:6px;">Elo actualizado con '
+        f'<b>{ft_applied}</b> partido(s) ya jugado(s). Solo se tocan partidos sin empezar.</div>'
+        f'<table style="width:100%;border-collapse:collapse;margin-top:8px;">{rows}</table></div>'
+        '<div style="background:#fff;border-radius:0 0 14px 14px;padding:14px 22px;'
+        'border-top:1px solid #eef2f7;color:#94a3b8;font-size:12px;">'
+        'Generado automáticamente. <b style="color:#15803d;">Favorito</b>: favorito claro · '
+        '<b style="color:#b45309;">Inclinado</b>: hay ganador probable · '
+        '<b style="color:#1d4ed8;">Parejo</b>: sin favorito (1-1).</div>'
+        '</div></body></html>')
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(html)
+
 def norm(s):
     """minúsculas, sin acentos, sin puntuación, espacios colapsados."""
     s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()
@@ -215,7 +281,7 @@ def compute_live_batch(fixtures, user_id, now, date_filter=None):
                        "pick_local": hs, "pick_visitante": as_, "confianza_%": md["conf"],
                        "tipo": md["type"], "prob_1X2": f"{md['ph']}/{md['pd']}/{md['pa']}",
                        "saque_utc": m.get("date")})
-    return batch, record, skipped
+    return batch, record, skipped, applied
 
 # --------------------------- modo respaldo: picks.json ---------------------------
 def load_pending(date_filter=None):
@@ -285,22 +351,25 @@ def main():
     log(("DRY-RUN — " if dry else "") + f"{mode}  [userId={user_id}]"
         + (f"  filtro={date_filter}" if date_filter else "") + "\n")
 
-    record = []
+    record, ft_applied = [], 0
     if args.from_picks:
         batch, skipped = compute_picks_batch(fixtures, user_id, now, date_filter)
     else:
-        batch, record, skipped = compute_live_batch(fixtures, user_id, now, date_filter)
+        batch, record, skipped, ft_applied = compute_live_batch(fixtures, user_id, now, date_filter)
 
+    live = not args.from_picks
     if record:
         with open("picks_generated.json", "w", encoding="utf-8") as f:
             json.dump({"generado_utc": now.isoformat(), "picks": record}, f, ensure_ascii=False, indent=1)
         log(f"\n(picks_generated.json escrito: {len(record)} picks calculados)")
 
     if not batch:
+        if live: write_html_summary(record, ft_applied, 0, dry)
         log(f"\nNada que enviar ({skipped} omitidos)."); return
 
     log(f"\n{'DRY-RUN — ' if dry else ''}batch de {len(batch)} pronóstico(s).")
     if dry:
+        if live: write_html_summary(record, ft_applied, len(batch), dry=True)
         log("  " + json.dumps(batch, ensure_ascii=False))
         log("\n(dry-run) POST fixtures/forecasts. Usa --go para enviar."); return
 
@@ -309,6 +378,7 @@ def main():
     log("  " + r.text[:300])
     if not r.ok:
         sys.exit("El envío falló.")
+    if live: write_html_summary(record, ft_applied, len(batch), dry=False)
     log(f"\n{len(batch)} pronóstico(s) enviado(s). ({skipped} omitidos por alcance/sin Elo)")
 
 if __name__ == "__main__":

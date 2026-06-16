@@ -48,6 +48,20 @@ jobs:
           set -o pipefail
           python3 submit_gameon.py --go 2>&1 | tee run.log
 
+      # Si el script falló y no alcanzó a generar el resumen HTML, lo armamos del log.
+      - name: Asegurar resumen HTML
+        if: always()
+        run: |
+          if [ ! -f summary.html ]; then
+            {
+              echo '<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;">'
+              echo '<h2 style="color:#b91c1c;">⚠️ La corrida no terminó bien — log completo:</h2>'
+              echo '<pre style="background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;white-space:pre-wrap;font-size:13px;">'
+              cat run.log 2>/dev/null || echo "(sin log)"
+              echo '</pre></div>'
+            } > summary.html
+          fi
+
       - name: Notificar por correo (siempre)
         if: always()
         uses: dawidd6/action-send-mail@v3
@@ -59,5 +73,6 @@ jobs:
           password:       ${{ secrets.MAIL_PASSWORD }}
           from:           Polla GameOn <${{ secrets.MAIL_USERNAME }}>
           to:             ${{ secrets.MAIL_TO }}
-          subject:        "Polla GameOn — corrida ${{ job.status }} (${{ github.run_id }})"
+          subject:        "Polla GameOn — ${{ job.status == 'success' && '✅ picks enviados' || '⚠️ revisar' }} (${{ github.run_id }})"
+          html_body:      file://summary.html
           body:           file://run.log
