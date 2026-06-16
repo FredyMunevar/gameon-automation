@@ -112,9 +112,24 @@ def write_html_summary(record, ft_applied, sent, dry, path="summary.html"):
             rows += (f'<tr><td colspan="3" style="padding:16px 10px 6px;font-weight:700;'
                      f'color:#475569;font-size:13px;text-transform:capitalize;">{fecha}</td></tr>')
             last_day = fecha
-        lbl, fg, bg = TIPO_LABEL.get(r["tipo"], (r["tipo"], "#475569", "#e2e8f0"))
+        _, fg, bg = TIPO_LABEL.get(r["tipo"], ("", "#475569", "#e2e8f0"))
+        try:
+            ph, pd, pa = (int(x) for x in r["prob_1X2"].split("/"))
+        except Exception:
+            ph, pd, pa = 0, 0, 0
+        if r["tipo"] == "EMP":
+            # sin favorito claro: jugamos 1-1; mostramos el equipo más fuerte para dar contexto
+            strong, ps = (r["local"], ph) if ph >= pa else (r["visitante"], pa)
+            chip_txt = f"Parejo · juego 1-1 ({strong} {ps}%)"
+        else:
+            if r["pick_local"] > r["pick_visitante"]:
+                chip_txt = f"Gana {r['local']} · {ph}%"
+            elif r["pick_visitante"] > r["pick_local"]:
+                chip_txt = f"Gana {r['visitante']} · {pa}%"
+            else:
+                chip_txt = f"{r['confianza_%']}%"
         chip = (f'<span style="background:{bg};color:{fg};padding:2px 9px;border-radius:11px;'
-                f'font-size:12px;font-weight:600;white-space:nowrap;">{lbl} · {r["confianza_%"]}%</span>')
+                f'font-size:12px;font-weight:600;white-space:nowrap;">{chip_txt}</span>')
         rows += (
             '<tr>'
             f'<td style="padding:9px 10px;border-bottom:1px solid #eef2f7;font-size:14px;">'
@@ -140,9 +155,11 @@ def write_html_summary(record, ft_applied, sent, dry, path="summary.html"):
         f'<table style="width:100%;border-collapse:collapse;margin-top:8px;">{rows}</table></div>'
         '<div style="background:#fff;border-radius:0 0 14px 14px;padding:14px 22px;'
         'border-top:1px solid #eef2f7;color:#94a3b8;font-size:12px;">'
-        'Generado automáticamente. <b style="color:#15803d;">Favorito</b>: favorito claro · '
-        '<b style="color:#b45309;">Inclinado</b>: hay ganador probable · '
-        '<b style="color:#1d4ed8;">Parejo</b>: sin favorito (1-1).</div>'
+        'Generado automáticamente. El <b>%</b> es la probabilidad de ese resultado. '
+        'El color indica qué tan claro es el favorito: '
+        '<b style="color:#15803d;">verde</b> muy claro (≥68%) · '
+        '<b style="color:#b45309;">naranja</b> moderado (58–68%) · '
+        '<b style="color:#1d4ed8;">azul</b> sin favorito → se juega 1-1.</div>'
         '</div></body></html>')
     with open(path, "w", encoding="utf-8") as f:
         f.write(html)
