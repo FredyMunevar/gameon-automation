@@ -26,11 +26,10 @@ permissions:
   contents: write          # para commitear el historial del tablero
 
 on:
-  schedule:
-    # 08:17 Bogotá. NO usamos el minuto :00 a propósito: es el horario más
-    # congestionado de GitHub Actions y los cron se retrasan/omiten más ahí.
-    - cron: "17 13 * * *"
-  workflow_dispatch: {}          # permite dispararlo a mano desde la pestaña Actions
+  # El disparo diario lo hace Vercel Cron (más fiable que el schedule de Actions):
+  # /api/cron del tablero llama a este workflow vía workflow_dispatch. El cron de
+  # GitHub se quitó porque se retrasaba/omitía. Ver dashboard/app/api/cron/route.js.
+  workflow_dispatch: {}          # disparable por Vercel Cron y a mano desde Actions
 
 jobs:
   submit:

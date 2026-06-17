@@ -72,9 +72,10 @@ Por defecto es **dry-run**; `--go` envía de verdad.
 
 ## Despliegue en la nube (GitHub Actions)
 
-Corre solo vía cron. El workflow está en [`.github/workflows/polla.yml`](.github/workflows/polla.yml):
+El workflow está en [`.github/workflows/polla.yml`](.github/workflows/polla.yml) y se dispara por `workflow_dispatch`.
 
-- **Cron:** `0 13 * * *` (UTC) = **08:00 Bogotá**, todos los días. También se puede disparar a mano (*workflow_dispatch*).
+- **Disparo diario:** lo hace **Vercel Cron** (más fiable que el `schedule` de GitHub Actions, que se retrasaba/omitía). El tablero expone [`/api/cron`](dashboard/app/api/cron/route.js) que llama a la API de GitHub (`workflow_dispatch`); `dashboard/vercel.json` lo programa a las `17 13 * * *` UTC ≈ **08:17 Bogotá**. También se puede disparar a mano desde la pestaña Actions o con `gh workflow run "Enviar picks polla"`.
+  - Requiere en el proyecto de Vercel: env `GH_DISPATCH_TOKEN` (PAT fine-grained con *Actions: Read & Write* sobre el repo) y `CRON_SECRET` (cadena aleatoria; Vercel la envía como `Authorization: Bearer` y la ruta la valida).
 - **Secrets del repo** (Settings → Secrets and variables → Actions):
 
 | Secret | Valor |
