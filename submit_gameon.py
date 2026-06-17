@@ -297,21 +297,33 @@ def build_updated_elo(fixtures):
 # ---- cuotas de mercado (the-odds-api) ----
 _ELO_BY_NORM = {norm(k): k for k in model.ELO}
 ODDS_TO_ELO_RAW = {"Czech Republic": "Czechia", "Bosnia & Herzegovina": "Bosnia", "Curaçao": "Curacao"}
-_MARKET = {}   # (eloHome, eloAway) -> (pHome, pDraw, pAway)  probabilidades de mercado
+_MARKET = {}   # (eloHome, eloAway) -> {"p":(ph,pd,pa), "mu":golesTotales, "sup":supremacía}
 
 def odds_elo_key(name):
     if name in ODDS_TO_ELO_RAW: return ODDS_TO_ELO_RAW[name]
     if name in model.ELO: return name
     return _ELO_BY_NORM.get(norm(name))
 
+def _mu_from_over(p_over):
+    """Goles totales esperados (μ) tales que Poisson(μ).P(X>=3) = p_over (línea 2.5)."""
+    import math as _m
+    lo, hi = 0.2, 7.0
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        pov = 1 - _m.exp(-mid) * (1 + mid + mid*mid/2)  # P(X>=3)
+        if pov < p_over: lo = mid
+        else: hi = mid
+    return (lo + hi) / 2
+
 def fetch_market_odds(api_key):
-    """Trae cuotas 1X2 del Mundial, las de-viga y promedia entre casas -> prob. de mercado."""
+    """Trae 1X2 + totales + hándicap del Mundial; de-viga y promedia entre casas para
+    obtener, por partido: prob. 1X2, goles totales esperados (μ) y supremacía (goles)."""
     if not api_key:
         return {}
     try:
         r = requests.get(f"https://api.the-odds-api.com/v4/sports/{ODDS_SPORT}/odds/",
-                         params={"apiKey": api_key, "regions": "us,uk,eu", "markets": "h2h",
-                                 "oddsFormat": "decimal"}, timeout=30)
+                         params={"apiKey": api_key, "regions": "us,uk,eu",
+                                 "markets": "h2h,totals,spreads", "oddsFormat": "decimal"}, timeout=30)
         if not r.ok:
             log(f"(cuotas: API {r.status_code} — se sigue solo con el modelo)"); return {}
         events = r.json()
@@ -319,64 +331,72 @@ def fetch_market_odds(api_key):
         log(f"(cuotas: error {e} — se sigue solo con el modelo)"); return {}
     out = {}
     for ev in events:
-        hk, ak = odds_elo_key(ev.get("home_team")), odds_elo_key(ev.get("away_team"))
+        home, away = ev.get("home_team"), ev.get("away_team")
+        hk, ak = odds_elo_key(home), odds_elo_key(away)
         if not hk or not ak:
             continue
-        sh = sd = sa = 0.0; n = 0
+        sh = sd = sa = 0.0; n1 = 0
+        smu = 0.0; nmu = 0
+        ssup = 0.0; nsup = 0
         for bk in ev.get("bookmakers", []):
-            mk = next((m for m in bk.get("markets", []) if m.get("key") == "h2h"), None)
-            if not mk:
-                continue
-            pr = {o.get("name"): o.get("price") for o in mk.get("outcomes", [])}
-            oh, oa, od = pr.get(ev["home_team"]), pr.get(ev["away_team"]), pr.get("Draw")
-            if not (oh and oa and od):
-                continue
-            ih, idr, ia = 1/oh, 1/od, 1/oa; s = ih + idr + ia
-            sh += ih/s; sd += idr/s; sa += ia/s; n += 1
-        if n:
-            out[(hk, ak)] = (sh/n, sd/n, sa/n)
+            mks = {m.get("key"): m for m in bk.get("markets", [])}
+            # 1X2
+            if "h2h" in mks:
+                pr = {o.get("name"): o.get("price") for o in mks["h2h"].get("outcomes", [])}
+                oh, oa, od = pr.get(home), pr.get(away), pr.get("Draw")
+                if oh and oa and od:
+                    ih, idr, ia = 1/oh, 1/od, 1/oa; s = ih + idr + ia
+                    sh += ih/s; sd += idr/s; sa += ia/s; n1 += 1
+            # totales (línea 2.5) -> μ
+            if "totals" in mks:
+                ov = un = None
+                for o in mks["totals"].get("outcomes", []):
+                    if o.get("point") == 2.5 and o.get("name") == "Over": ov = o.get("price")
+                    if o.get("point") == 2.5 and o.get("name") == "Under": un = o.get("price")
+                if ov and un:
+                    pov = (1/ov) / (1/ov + 1/un)
+                    smu += _mu_from_over(pov); nmu += 1
+            # hándicap (spread) del local -> supremacía
+            if "spreads" in mks:
+                hp = next((o.get("point") for o in mks["spreads"].get("outcomes", [])
+                           if o.get("name") == home and o.get("point") is not None), None)
+                if hp is not None:
+                    ssup += -hp; nsup += 1   # local -1.0 => supremacía +1.0
+        if n1:
+            out[(hk, ak)] = {"p": (sh/n1, sd/n1, sa/n1),
+                             "mu": (smu/nmu) if nmu else None,
+                             "sup": (ssup/nsup) if nsup else None}
     return out
 
 def _market_get(hk, ak):
     if (hk, ak) in _MARKET: return _MARKET[(hk, ak)]
     if (ak, hk) in _MARKET:
-        ph, pd, pa = _MARKET[(ak, hk)]; return (pa, pd, ph)  # invertir orientación
+        d = _MARKET[(ak, hk)]; ph, pd, pa = d["p"]
+        return {"p": (pa, pd, ph), "mu": d["mu"],
+                "sup": (-d["sup"] if d["sup"] is not None else None)}  # invertir orientación
     return None
-
-def _fit_matrix(ph_t, pa_t):
-    """Matriz de marcadores cuyas prob. 1X2 más se acercan a (ph_t, pa_t)."""
-    best = None
-    lo = 6
-    while lo <= 72:
-        lh = lo / 20.0; la2 = 6
-        while la2 <= 72:
-            la = la2 / 20.0
-            M = model.score_matrix(lh, la)
-            ph, _, pa = model.outcome_probs(M)
-            err = (ph - ph_t) ** 2 + (pa - pa_t) ** 2
-            if best is None or err < best[0]:
-                best = (err, M)
-            la2 += 3
-        lo += 3
-    return best[1]
 
 def predict(hk, ak, host_home, elo):
     """Devuelve (pick (hs,as), meta). Si hay cuotas de mercado, las mezcla con el modelo."""
     lh, la = model.lambdas(hk, ak, host_home, False, elo=elo)
-    M = model.score_matrix(lh, la)
-    ph, pd, pa = model.outcome_probs(M)
     mkt = _market_get(hk, ak)
     used_market = False
-    if mkt:
+    if mkt and (mkt["mu"] is not None or mkt["sup"] is not None):
         w = ODDS_WEIGHT
-        bph = w * mkt[0] + (1 - w) * ph
-        bpd = w * mkt[1] + (1 - w) * pd
-        bpa = w * mkt[2] + (1 - w) * pa
-        s = bph + bpd + bpa
-        bph, bpd, bpa = bph/s, bpd/s, bpa/s
-        M = _fit_matrix(bph, bpa)               # matriz reajustada a la mezcla
-        ph, pd, pa = bph, bpd, bpa
+        model_mu, model_sup = lh + la, lh - la
+        mu  = w * mkt["mu"]  + (1 - w) * model_mu  if mkt["mu"]  is not None else model_mu
+        sup = w * mkt["sup"] + (1 - w) * model_sup if mkt["sup"] is not None else model_sup
+        lh = max(model.LAMBDA_FLOOR, (mu + sup) / 2)
+        la = max(model.LAMBDA_FLOOR, (mu - sup) / 2)
         used_market = True
+    M = model.score_matrix(lh, la)
+    ph, pd, pa = model.outcome_probs(M)
+    if used_market and mkt["p"]:   # afinar el 1X2 hacia el mercado (no cambia el marcador)
+        w = ODDS_WEIGHT
+        ph = w * mkt["p"][0] + (1 - w) * ph
+        pd = w * mkt["p"][1] + (1 - w) * pd
+        pa = w * mkt["p"][2] + (1 - w) * pa
+        s = ph + pd + pa; ph, pd, pa = ph/s, pd/s, pa/s
     evp, ev = model.ev_pick(M); mod = model.modal_score(M)
     if PICK_STRATEGY == "ev":       pick = evp
     elif PICK_STRATEGY == "hybrid": pick = model.recommend(dict(ph=ph, pd=pd, pa=pa, pick=evp, modal=mod))
