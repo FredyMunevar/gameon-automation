@@ -49,6 +49,9 @@ GROUP_ID = os.environ.get("GAMEON_GROUP_ID", "")
 
 CLOSE_MARGIN_MIN = 5          # la app cierra la edición 5 min antes del saque
 PLAYABLE_STATE   = "NS"       # Not Started — único estado en que se puede pronosticar
+# Estrategia de pick. "modal" (marcador más probable) ganó en backtest: 45 vs 40
+# (híbrido) vs 28 (EV) sobre 20 jugados, y 27 vs 25 sobre los 12 originales.
+PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 MES = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
 BOGOTA = datetime.timezone(datetime.timedelta(hours=-5))
 
@@ -139,17 +142,14 @@ def write_html_summary(record, ft_applied, sent, dry, ranking=None, path="summar
             ph, pd, pa = (int(x) for x in r["prob_1X2"].split("/"))
         except Exception:
             ph, pd, pa = 0, 0, 0
-        if r["tipo"] == "EMP":
-            # sin favorito claro: jugamos 1-1; mostramos el equipo más fuerte para dar contexto
-            strong, ps = (r["local"], ph) if ph >= pa else (r["visitante"], pa)
-            chip_txt = f"Parejo · juego 1-1 ({strong} {ps}%)"
+        hl, vl = r["pick_local"], r["pick_visitante"]
+        if hl > vl:
+            chip_txt = f"Gana {r['local']} · {ph}%"
+        elif vl > hl:
+            chip_txt = f"Gana {r['visitante']} · {pa}%"
         else:
-            if r["pick_local"] > r["pick_visitante"]:
-                chip_txt = f"Gana {r['local']} · {ph}%"
-            elif r["pick_visitante"] > r["pick_local"]:
-                chip_txt = f"Gana {r['visitante']} · {pa}%"
-            else:
-                chip_txt = f"{r['confianza_%']}%"
+            strong, ps = (r["local"], ph) if ph >= pa else (r["visitante"], pa)
+            chip_txt = f"Empate {hl}-{vl} · ligero fav. {strong} {ps}%"
         chip = (f'<span style="background:{bg};color:{fg};padding:2px 9px;border-radius:11px;'
                 f'font-size:12px;font-weight:600;white-space:nowrap;">{chip_txt}</span>')
         rows += (
@@ -295,12 +295,14 @@ def predict(hk, ak, host_home, elo):
     M = model.score_matrix(lh, la)
     ph, pd, pa = model.outcome_probs(M)
     evp, ev = model.ev_pick(M); mod = model.modal_score(M)
-    rec = model.recommend(dict(ph=ph, pd=pd, pa=pa, pick=evp, modal=mod))
+    if PICK_STRATEGY == "ev":       pick = evp
+    elif PICK_STRATEGY == "hybrid": pick = model.recommend(dict(ph=ph, pd=pd, pa=pa, pick=evp, modal=mod))
+    else:                           pick = mod   # "modal": marcador más probable
     coin = not (ph >= 0.58 or pa >= 0.58)
     typ = "EMP" if coin else ("FAV" if max(ph, pa) >= 0.68 else "SOR")
-    po = (rec[0] > rec[1]) - (rec[0] < rec[1])
+    po = (pick[0] > pick[1]) - (pick[0] < pick[1])
     conf = ph if po > 0 else (pd if po == 0 else pa)
-    return rec, dict(ph=round(ph*100), pd=round(pd*100), pa=round(pa*100),
+    return pick, dict(ph=round(ph*100), pd=round(pd*100), pa=round(pa*100),
                      modal=mod, evpick=evp, ev=round(ev, 2), lh=round(lh, 2), la=round(la, 2),
                      coin=coin, type=typ, conf=round(conf*100))
 
@@ -353,12 +355,9 @@ for _mm in model.matches:
 
 def _reason(hs, as_, md):
     p = f"Motor Poisson-Elo. 1X2 = {md['ph']}/{md['pd']}/{md['pa']}%. "
-    if md["coin"]:
-        return (p + "Sin favorito claro (moneda al aire): recomiendo 1-1, el marcador más común "
-                "y con opción al bono por exacto.")
-    mh, ma = md["modal"]
-    return (p + f"Favorito claro: me comprometo con {hs}-{as_} para asegurar el piso de puntos. "
-            f"Nota: el más probable es {mh}-{ma}.")
+    if hs == as_:
+        return p + f"El marcador más probable es un empate {hs}-{as_} (estrategia que mejor puntuó en backtest)."
+    return p + f"Marcador más probable del modelo: {hs}-{as_} (estrategia que mejor puntuó en backtest)."
 
 def model_backtest_params():
     """Backtest de los 12 jugados + parámetros, tal como los calcula model.py (fijo)."""

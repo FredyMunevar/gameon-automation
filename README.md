@@ -31,7 +31,7 @@ Solo se envían picks de partidos que **NO han empezado** (`state == "NS"`) y co
 - **Motor:** Elo → goles esperados → Poisson + corrección Dixon-Coles (ρ) → matriz de marcadores → optimizador de puntos esperados de la polla.
 - **Actualización bayesiana del Elo:** `Δ = K · G · (resultado_real − esperado)`, con `K=60` (valor de eloratings.net para fase final de Mundial: el rating reacciona rápido), `G` = multiplicador por diferencia de goles. Se aplica acumulada desde la Jornada 2.
 - **Ventaja de localía (HFA):** +55 Elo para anfitriones jugando en casa (México, USA, Canadá).
-- **Pick híbrido:** favorito claro (≥58%) → marcador EV (asegura el piso); moneda al aire → 1-1.
+- **Pick = marcador más probable (modal):** la estrategia que mejor puntuó en backtest (45 vs 40 del híbrido vs 28 del EV, sobre 20 jugados; robusta a `BASE_TOTAL`/`RHO`). Configurable en `submit_gameon.py` (`PICK_STRATEGY`: `modal` | `hybrid` | `ev`).
 - Corriendo `python3 model.py` (standalone) imprime el backtest y escribe `wc_model.json` (datos para un widget). Como módulo importable, expone solo el motor (constantes + funciones), sin efectos.
 
 ---
