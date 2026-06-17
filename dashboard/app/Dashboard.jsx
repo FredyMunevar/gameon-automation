@@ -207,6 +207,20 @@ export default function Dashboard({ db }){
   const [showBT,setShowBT]=useState(false);
   const updFmt=new Intl.DateTimeFormat("es-CO",{weekday:"short",day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true,timeZone:"America/Bogota"});
   const updated=db.updated?updFmt.format(new Date(db.updated)):null;
+  const [pin,setPin]=useState("");
+  const [busy,setBusy]=useState(false);
+  const [msg,setMsg]=useState("");
+  async function trigger(){
+    if(!pin){setMsg("Escribe el código primero.");return;}
+    setBusy(true);setMsg("Disparando…");
+    try{
+      const r=await fetch("/api/trigger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin})});
+      const d=await r.json();
+      setMsg(d.ok?"✅ ¡Disparado! Se actualiza en ~30-60s (recarga la página).":("❌ "+(d.error||("Error "+r.status))));
+      if(d.ok)setPin("");
+    }catch(e){setMsg("❌ "+e.message);}
+    setBusy(false);
+  }
   const played=MATCHES.filter(m=>m.result);
   const ex=played.filter(m=>getStatus(m)==="exact").length;
   const co=played.filter(m=>getStatus(m)==="correct").length;
@@ -226,6 +240,14 @@ export default function Dashboard({ db }){
         <h1 style={{margin:0,fontSize:"clamp(22px,6vw,44px)",fontWeight:900,letterSpacing:-1,background:"linear-gradient(130deg,#FFB800,#FF6B35,#FFB800)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>PRONÓSTICOS & RESULTADOS</h1>
         <div style={{color:"#334155",fontSize:11,marginTop:5}}>Pick optimizado para polla 6/4/3 · toca cualquier partido para el detalle</div>
         {updated && <div style={{display:"inline-block",marginTop:10,background:"#0F1828",border:"1px solid #1E293B",borderRadius:20,padding:"4px 12px",fontSize:11,color:"#7dd3fc"}}>🕒 Última actualización: {updated} (Bogotá)</div>}
+        <div style={{marginTop:12,display:"flex",gap:6,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
+          <input type="password" inputMode="numeric" value={pin} onChange={e=>setPin(e.target.value)} placeholder="código"
+            style={{background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px 10px",fontSize:13,width:110,textAlign:"center"}}/>
+          <button onClick={trigger} disabled={busy}
+            style={{background:busy?"#1E293B":"#FFB800",color:busy?"#64748B":"#06090E",border:"none",borderRadius:8,padding:"8px 14px",fontWeight:700,fontSize:13,cursor:busy?"default":"pointer"}}>
+            {busy?"…":"🔄 Actualizar ahora"}</button>
+        </div>
+        {msg && <div style={{fontSize:11,color:"#94A3B8",marginTop:7}}>{msg}</div>}
         <div style={{display:"flex",justifyContent:"center",gap:7,marginTop:14,flexWrap:"wrap"}}>
           {stats.map(([e,v,l])=>(
             <div key={l} style={{background:"#0F1828",borderRadius:10,padding:"8px 12px",textAlign:"center",border:"1px solid #1E293B",minWidth:58}}>

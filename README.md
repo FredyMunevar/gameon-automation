@@ -116,6 +116,8 @@ Al terminar cada corrida (corra bien o **falle**), el workflow envía un correo 
 
 - **Datos:** cada corrida del workflow regenera `dashboard/data/model.json` (acumula el historial: agrega una predicción cuando el pick cambia; siembra el histórico viejo de `model.py`; registra resultados al terminar) y lo **commitea** al repo. Vercel redespliega solo en cada push → el tablero queda al día.
 - **Despliegue en Vercel:** proyecto con **Root Directory = `dashboard`**, framework Next.js (autodetectado). Sin variables de entorno (lee un archivo del repo). Apuntar el subdominio deseado.
+- **Botón "Actualizar ahora":** el tablero tiene un botón (protegido por un PIN) para disparar el envío a mano desde cualquier dispositivo, sin entrar a GitHub. Usa la ruta [`/api/trigger`](dashboard/app/api/trigger/route.js). Requiere en Vercel la env `TRIGGER_PIN` (el código que eliges) y `GH_DISPATCH_TOKEN`.
+- **Última actualización:** el tablero muestra la fecha/hora (Bogotá) de la última corrida (campo `updated` de `model.json`).
 - **Local:** `cd dashboard && npm install && npm run dev` → http://localhost:3000
 
 ## Notas de la API (de decompilar el APK)
