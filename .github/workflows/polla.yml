@@ -48,6 +48,7 @@ jobs:
           GAMEON_EMAIL:     ${{ secrets.GAMEON_EMAIL }}
           GAMEON_PASSWORD:  ${{ secrets.GAMEON_PASSWORD }}
           GAMEON_GROUP_ID:  ${{ secrets.GAMEON_GROUP_ID }}
+          ODDS_API_KEY:     ${{ secrets.ODDS_API_KEY }}
         run: |
           set -o pipefail
           python3 submit_gameon.py --go 2>&1 | tee run.log

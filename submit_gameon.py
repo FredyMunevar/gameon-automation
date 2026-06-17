@@ -52,6 +52,11 @@ PLAYABLE_STATE   = "NS"       # Not Started — único estado en que se puede pr
 # Estrategia de pick. "modal" (marcador más probable) ganó en backtest: 45 vs 40
 # (híbrido) vs 28 (EV) sobre 20 jugados, y 27 vs 25 sobre los 12 originales.
 PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
+# Cuotas de mercado (the-odds-api.com): mezclar la probabilidad implícita del mercado
+# con el Poisson-Elo mejora el acierto (el mercado ya incorpora lesiones/forma/viajes).
+ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
+ODDS_SPORT       = "soccer_fifa_world_cup"
+ODDS_WEIGHT      = 0.6        # peso del mercado en la mezcla (0..1); resto es el modelo
 MES = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
 BOGOTA = datetime.timezone(datetime.timedelta(hours=-5))
 
@@ -289,11 +294,89 @@ def build_updated_elo(fixtures):
         working[hk] += dh; working[ak] += da; applied += 1
     return working, applied, skipped
 
+# ---- cuotas de mercado (the-odds-api) ----
+_ELO_BY_NORM = {norm(k): k for k in model.ELO}
+ODDS_TO_ELO_RAW = {"Czech Republic": "Czechia", "Bosnia & Herzegovina": "Bosnia", "Curaçao": "Curacao"}
+_MARKET = {}   # (eloHome, eloAway) -> (pHome, pDraw, pAway)  probabilidades de mercado
+
+def odds_elo_key(name):
+    if name in ODDS_TO_ELO_RAW: return ODDS_TO_ELO_RAW[name]
+    if name in model.ELO: return name
+    return _ELO_BY_NORM.get(norm(name))
+
+def fetch_market_odds(api_key):
+    """Trae cuotas 1X2 del Mundial, las de-viga y promedia entre casas -> prob. de mercado."""
+    if not api_key:
+        return {}
+    try:
+        r = requests.get(f"https://api.the-odds-api.com/v4/sports/{ODDS_SPORT}/odds/",
+                         params={"apiKey": api_key, "regions": "us,uk,eu", "markets": "h2h",
+                                 "oddsFormat": "decimal"}, timeout=30)
+        if not r.ok:
+            log(f"(cuotas: API {r.status_code} — se sigue solo con el modelo)"); return {}
+        events = r.json()
+    except Exception as e:
+        log(f"(cuotas: error {e} — se sigue solo con el modelo)"); return {}
+    out = {}
+    for ev in events:
+        hk, ak = odds_elo_key(ev.get("home_team")), odds_elo_key(ev.get("away_team"))
+        if not hk or not ak:
+            continue
+        sh = sd = sa = 0.0; n = 0
+        for bk in ev.get("bookmakers", []):
+            mk = next((m for m in bk.get("markets", []) if m.get("key") == "h2h"), None)
+            if not mk:
+                continue
+            pr = {o.get("name"): o.get("price") for o in mk.get("outcomes", [])}
+            oh, oa, od = pr.get(ev["home_team"]), pr.get(ev["away_team"]), pr.get("Draw")
+            if not (oh and oa and od):
+                continue
+            ih, idr, ia = 1/oh, 1/od, 1/oa; s = ih + idr + ia
+            sh += ih/s; sd += idr/s; sa += ia/s; n += 1
+        if n:
+            out[(hk, ak)] = (sh/n, sd/n, sa/n)
+    return out
+
+def _market_get(hk, ak):
+    if (hk, ak) in _MARKET: return _MARKET[(hk, ak)]
+    if (ak, hk) in _MARKET:
+        ph, pd, pa = _MARKET[(ak, hk)]; return (pa, pd, ph)  # invertir orientación
+    return None
+
+def _fit_matrix(ph_t, pa_t):
+    """Matriz de marcadores cuyas prob. 1X2 más se acercan a (ph_t, pa_t)."""
+    best = None
+    lo = 6
+    while lo <= 72:
+        lh = lo / 20.0; la2 = 6
+        while la2 <= 72:
+            la = la2 / 20.0
+            M = model.score_matrix(lh, la)
+            ph, _, pa = model.outcome_probs(M)
+            err = (ph - ph_t) ** 2 + (pa - pa_t) ** 2
+            if best is None or err < best[0]:
+                best = (err, M)
+            la2 += 3
+        lo += 3
+    return best[1]
+
 def predict(hk, ak, host_home, elo):
-    """Devuelve (pick (hs,as), meta) usando el motor de model.py."""
+    """Devuelve (pick (hs,as), meta). Si hay cuotas de mercado, las mezcla con el modelo."""
     lh, la = model.lambdas(hk, ak, host_home, False, elo=elo)
     M = model.score_matrix(lh, la)
     ph, pd, pa = model.outcome_probs(M)
+    mkt = _market_get(hk, ak)
+    used_market = False
+    if mkt:
+        w = ODDS_WEIGHT
+        bph = w * mkt[0] + (1 - w) * ph
+        bpd = w * mkt[1] + (1 - w) * pd
+        bpa = w * mkt[2] + (1 - w) * pa
+        s = bph + bpd + bpa
+        bph, bpd, bpa = bph/s, bpd/s, bpa/s
+        M = _fit_matrix(bph, bpa)               # matriz reajustada a la mezcla
+        ph, pd, pa = bph, bpd, bpa
+        used_market = True
     evp, ev = model.ev_pick(M); mod = model.modal_score(M)
     if PICK_STRATEGY == "ev":       pick = evp
     elif PICK_STRATEGY == "hybrid": pick = model.recommend(dict(ph=ph, pd=pd, pa=pa, pick=evp, modal=mod))
@@ -302,9 +385,12 @@ def predict(hk, ak, host_home, elo):
     typ = "EMP" if coin else ("FAV" if max(ph, pa) >= 0.68 else "SOR")
     po = (pick[0] > pick[1]) - (pick[0] < pick[1])
     conf = ph if po > 0 else (pd if po == 0 else pa)
+    rng = range(len(M))
+    egh = sum(i * sum(M[i]) for i in rng)
+    ega = sum(j * sum(M[i][j] for i in rng) for j in rng)
     return pick, dict(ph=round(ph*100), pd=round(pd*100), pa=round(pa*100),
-                     modal=mod, evpick=evp, ev=round(ev, 2), lh=round(lh, 2), la=round(la, 2),
-                     coin=coin, type=typ, conf=round(conf*100))
+                     modal=mod, evpick=evp, ev=round(ev, 2), lh=round(egh, 2), la=round(ega, 2),
+                     coin=coin, type=typ, conf=round(conf*100), market=used_market)
 
 def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
     """Modelo vivo: predicción de todos los NS enviables (Elo ya calculado)."""
@@ -512,7 +598,10 @@ def main():
     else:
         elo, ft_applied, skipped_ft = build_updated_elo(fixtures)
         log(f"Elo bayesiano: {ft_applied} partidos FT aplicados"
-            + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else "") + "\n")
+            + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else ""))
+        _MARKET.update(fetch_market_odds(ODDS_API_KEY))
+        log((f"Cuotas de mercado: {len(_MARKET)} partidos mezclados al {int(ODDS_WEIGHT*100)}%"
+             if _MARKET else "Cuotas de mercado: no disponibles (solo modelo)") + "\n")
         batch, record, skipped = compute_live_batch(fixtures, user_id, now, elo, date_filter)
         n_dash = build_dashboard_data(fixtures, elo, now)
         log(f"(tablero actualizado: {n_dash} partidos en dashboard/data/model.json)")

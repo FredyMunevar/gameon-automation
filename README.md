@@ -32,6 +32,7 @@ Solo se envían picks de partidos que **NO han empezado** (`state == "NS"`) y co
 - **Actualización bayesiana del Elo:** `Δ = K · G · (resultado_real − esperado)`, con `K=60` (valor de eloratings.net para fase final de Mundial: el rating reacciona rápido), `G` = multiplicador por diferencia de goles. Se aplica acumulada desde la Jornada 2.
 - **Ventaja de localía (HFA):** +55 Elo para anfitriones jugando en casa (México, USA, Canadá).
 - **Pick = marcador más probable (modal):** la estrategia que mejor puntuó en backtest (45 vs 40 del híbrido vs 28 del EV, sobre 20 jugados; robusta a `BASE_TOTAL`/`RHO`). Configurable en `submit_gameon.py` (`PICK_STRATEGY`: `modal` | `hybrid` | `ev`).
+- **Mezcla con cuotas de mercado:** si hay `ODDS_API_KEY` ([the-odds-api.com](https://the-odds-api.com)), cada corrida trae las cuotas 1X2 del Mundial, las "de-viga" y promedia entre casas → probabilidad de mercado, y la **mezcla** con el Poisson-Elo (`ODDS_WEIGHT`, 60% mercado por defecto); luego reajusta la matriz de marcadores a esa mezcla y toma el modal. El mercado ya incorpora lesiones, forma y viajes (es el enfoque de apps como BetAlpha). Si no hay key o falla, usa solo el modelo (*fallback*).
 - Corriendo `python3 model.py` (standalone) imprime el backtest y escribe `wc_model.json` (datos para un widget). Como módulo importable, expone solo el motor (constantes + funciones), sin efectos.
 
 ---
@@ -84,6 +85,7 @@ El workflow está en [`.github/workflows/polla.yml`](.github/workflows/polla.yml
 | `GAMEON_EMAIL` | mi correo de GameOn |
 | `GAMEON_PASSWORD` | mi contraseña (**secreto**) |
 | `GAMEON_GROUP_ID` | `32534` (la polla del Mundial 2026) |
+| `ODDS_API_KEY` | key de [the-odds-api.com](https://the-odds-api.com) para mezclar cuotas de mercado (opcional) |
 
 Disparar a mano y ver el resultado:
 
