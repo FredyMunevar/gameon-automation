@@ -1,3 +1,9 @@
 {
-  "overrides": {}
+  "overrides": {
+    "19609168": {
+      "hs": 1,
+      "as_": 0,
+      "src": "BetAlpha"
+    }
+  }
 }
