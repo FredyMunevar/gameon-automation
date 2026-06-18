@@ -56,7 +56,24 @@ PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 # con el Poisson-Elo mejora el acierto (el mercado ya incorpora lesiones/forma/viajes).
 ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
 ODDS_SPORT       = "soccer_fifa_world_cup"
-ODDS_WEIGHT      = 0.6        # peso del mercado en la mezcla (0..1); resto es el modelo
+ODDS_WEIGHT      = 0.75       # peso del mercado en la mezcla (0..1); resto es el modelo
+
+def load_overrides(path="overrides.json"):
+    """Marcadores forzados a mano (p.ej. de BetAlpha): {fixtureId: {hs, as_, src}}."""
+    try:
+        d = json.load(open(path, encoding="utf-8"))
+        d = d.get("overrides", d)
+        return {str(k): v for k, v in (d or {}).items()}
+    except Exception:
+        return {}
+
+_OVERRIDES = {}   # se llena en main()
+
+def apply_override(fixture_id, hs, as_):
+    ov = _OVERRIDES.get(str(fixture_id))
+    if ov and ov.get("hs") is not None and ov.get("as_") is not None:
+        return int(ov["hs"]), int(ov["as_"]), (ov.get("src") or "manual")
+    return hs, as_, None
 MES = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct",11:"Nov",12:"Dec"}
 BOGOTA = datetime.timezone(datetime.timedelta(hours=-5))
 
@@ -433,14 +450,15 @@ def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
         if hk not in elo or ak not in elo:
             log(f"  ⏭  {es_name(hn)} vs {es_name(vn)}: sin Elo (equipo aún por definir)"); skipped += 1; continue
         (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
-        log(f"  ✓ {es_name(hn)} {hs}-{as_} {es_name(vn)}  fix={m['fixtureId']}  "
-            f"[{md['type']} {md['conf']}% · 1X2 {md['ph']}/{md['pd']}/{md['pa']}]  {why}")
+        hs, as_, osrc = apply_override(m["fixtureId"], hs, as_)
+        tag = f" [OVERRIDE {osrc}]" if osrc else f" [{md['type']} {md['conf']}% · 1X2 {md['ph']}/{md['pd']}/{md['pa']}]"
+        log(f"  ✓ {es_name(hn)} {hs}-{as_} {es_name(vn)}  fix={m['fixtureId']} {tag}  {why}")
         batch.append({"fixtureId": m["fixtureId"], "localScore": hs,
                       "visitorScore": as_, "userId": user_id})
         record.append({"fixtureId": m["fixtureId"], "local": es_name(hn), "visitante": es_name(vn),
                        "pick_local": hs, "pick_visitante": as_, "confianza_%": md["conf"],
                        "tipo": md["type"], "prob_1X2": f"{md['ph']}/{md['pd']}/{md['pa']}",
-                       "saque_utc": m.get("date")})
+                       "override": osrc, "saque_utc": m.get("date")})
     return batch, record, skipped
 
 # --------------------------- datos del tablero (Vercel) ---------------------------
@@ -498,6 +516,7 @@ def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
         ko = kickoff(m)
         date_lbl = f"{MES[ko.astimezone(BOGOTA).month]} {ko.astimezone(BOGOTA).day}" if ko else ""
         (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
+        hs, as_, osrc = apply_override(m["fixtureId"], hs, as_)
 
         # historial acumulado: arranca del previo, o se siembra del histórico viejo
         preds = (prev.get(fid) or {}).get("predictions")
@@ -506,8 +525,13 @@ def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
         st = fstate(m)
         if st == "NS":
             if not preds or preds[-1]["hs"] != hs or preds[-1]["as_"] != as_:
-                preds.append({"stage": "Modelo Poisson-Elo", "date": today, "hs": hs, "as_": as_,
-                              "conf": md["conf"], "type": md["type"], "reason": _reason(hs, as_, md)})
+                if osrc:
+                    preds.append({"stage": f"Override · {osrc}", "date": today, "hs": hs, "as_": as_,
+                                  "conf": md["conf"], "type": md["type"],
+                                  "reason": f"Marcador forzado manualmente ({osrc})."})
+                else:
+                    preds.append({"stage": "Modelo Poisson-Elo", "date": today, "hs": hs, "as_": as_,
+                                  "conf": md["conf"], "type": md["type"], "reason": _reason(hs, as_, md)})
             cur = {"hs": hs, "as_": as_, "conf": md["conf"], "type": md["type"]}
         else:
             # FT/en juego: el pick queda congelado en la última predicción registrada
@@ -621,7 +645,10 @@ def main():
             + (f"; {len(skipped_ft)} sin equipo Elo (placeholders/knockout)" if skipped_ft else ""))
         _MARKET.update(fetch_market_odds(ODDS_API_KEY))
         log((f"Cuotas de mercado: {len(_MARKET)} partidos mezclados al {int(ODDS_WEIGHT*100)}%"
-             if _MARKET else "Cuotas de mercado: no disponibles (solo modelo)") + "\n")
+             if _MARKET else "Cuotas de mercado: no disponibles (solo modelo)"))
+        _OVERRIDES.update(load_overrides())
+        log((f"Overrides manuales: {len(_OVERRIDES)} partido(s) forzado(s)" if _OVERRIDES
+             else "Overrides manuales: ninguno") + "\n")
         batch, record, skipped = compute_live_batch(fixtures, user_id, now, elo, date_filter)
         n_dash = build_dashboard_data(fixtures, elo, now)
         log(f"(tablero actualizado: {n_dash} partidos en dashboard/data/model.json)")

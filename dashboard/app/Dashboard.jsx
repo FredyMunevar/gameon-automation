@@ -102,8 +102,22 @@ const Card = ({m,onOpen}) => {
 };
 
 const Modal = ({m,onClose}) => {
+  const [oh,setOh]=useState(""); const [oa,setOa]=useState("");
+  const [opin,setOpin]=useState(""); const [obusy,setObusy]=useState(false); const [omsg,setOmsg]=useState("");
   if(!m) return null;
   const st=STATUS[getStatus(m)], md=m.model;
+  async function saveOv(remove){
+    if(!opin){setOmsg("Escribe el código.");return;}
+    if(!remove && (oh===""||oa==="")){setOmsg("Escribe el marcador.");return;}
+    setObusy(true);setOmsg("Guardando…");
+    try{
+      const r=await fetch("/api/override",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({pin:opin,fixtureId:m.fixtureId,hs:Number(oh),as_:Number(oa),remove:!!remove})});
+      const d=await r.json();
+      setOmsg(d.ok?(remove?"✅ Override quitado — actualizando (~1 min).":"✅ Guardado — se envía en ~1 min."):("❌ "+(d.error||("Error "+r.status))));
+    }catch(e){setOmsg("❌ "+e.message);}
+    setObusy(false);
+  }
   return (
     <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(3,6,12,0.82)",backdropFilter:"blur(3px)",display:"flex",alignItems:"center",justifyContent:"center",padding:14,zIndex:100}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#0B1220",borderRadius:16,border:"1px solid #1E293B",width:"100%",maxWidth:470,maxHeight:"88vh",overflowY:"auto"}}>
@@ -120,6 +134,27 @@ const Modal = ({m,onClose}) => {
           <div style={{flex:1,textAlign:"center"}}><div style={{fontSize:40}}>{m.away.flag}</div><div style={{fontSize:13,fontWeight:700,marginTop:6}}>{m.away.name}</div></div>
         </div>
         {m.venue && <div style={{textAlign:"center",fontSize:10,color:"#475569",padding:"0 16px 14px"}}>📍 {m.venue}</div>}
+
+        {!m.result && (
+          <div style={{margin:"0 16px 16px",padding:"12px 14px",background:"#101a30",borderRadius:12,border:"1px solid #1e3a5f"}}>
+            <div style={{fontSize:10,color:"#FFB800",letterSpacing:2,marginBottom:8,fontWeight:700}}>✍️ FORZAR MARCADOR (p. ej. BetAlpha)</div>
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <input type="number" min="0" value={oh} onChange={e=>setOh(e.target.value)} placeholder={m.home.name.slice(0,6)}
+                style={{width:62,background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px",textAlign:"center",fontSize:14}}/>
+              <span style={{color:"#475569",fontWeight:800}}>–</span>
+              <input type="number" min="0" value={oa} onChange={e=>setOa(e.target.value)} placeholder={m.away.name.slice(0,6)}
+                style={{width:62,background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px",textAlign:"center",fontSize:14}}/>
+              <input type="password" inputMode="numeric" value={opin} onChange={e=>setOpin(e.target.value)} placeholder="código"
+                style={{width:84,background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px",textAlign:"center",fontSize:13}}/>
+              <button onClick={()=>saveOv(false)} disabled={obusy}
+                style={{background:obusy?"#1E293B":"#FFB800",color:obusy?"#64748B":"#06090E",border:"none",borderRadius:8,padding:"8px 12px",fontWeight:700,fontSize:13,cursor:"pointer"}}>Guardar</button>
+              <button onClick={()=>saveOv(true)} disabled={obusy}
+                style={{background:"transparent",color:"#94A3B8",border:"1px solid #1E293B",borderRadius:8,padding:"8px 10px",fontSize:12,cursor:"pointer"}}>Quitar</button>
+            </div>
+            {omsg && <div style={{fontSize:11,color:"#94A3B8",marginTop:8}}>{omsg}</div>}
+            <div style={{fontSize:10,color:"#475569",marginTop:6}}>Reemplaza el pick del modelo para este partido y lo reenvía.</div>
+          </div>
+        )}
 
         {m.result && (
           <div style={{margin:"0 16px 16px",padding:12,background:st.bg,borderRadius:12,border:`1px solid ${st.border}`,textAlign:"center"}}>
@@ -333,7 +368,7 @@ export default function Dashboard({ db }){
           <b style={{color:"#7dd3fc"}}>Modelo:</b> ratings <b>Elo</b> (eloratings.net) → goles esperados (λ) → distribución de marcadores <b>Poisson + Dixon-Coles</b> → optimización para el puntaje <b>6/4/3</b>. Entorno goleador {PARAMS.baseTotal} goles/partido (calor + 2 pausas de hidratación). <b style={{color:"#7dd3fc"}}>Pick:</b> favorito claro (≥58%) → me comprometo con él; partido parejo → 1-1. Las barras muestran probabilidad de victoria local (verde) / empate (gris) / visitante (azul). El modelo se reajusta solo (Bayesiano) a medida que llegan resultados.
         </div>
       </div>
-      <Modal m={sel} onClose={()=>setSel(null)}/>
+      <Modal key={sel?sel.fixtureId:"none"} m={sel} onClose={()=>setSel(null)}/>
     </div>
   );
 }
