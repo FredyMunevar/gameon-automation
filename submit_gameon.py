@@ -478,7 +478,7 @@ for _mm in model.matches:
     }
 
 def _reason(hs, as_, md):
-    p = f"Motor Poisson-Elo. 1X2 = {md['ph']}/{md['pd']}/{md['pa']}%. "
+    p = f"Mercado (cuotas) + Poisson-Elo. 1X2 = {md['ph']}/{md['pd']}/{md['pa']}%. "
     if hs == as_:
         return p + f"El marcador más probable es un empate {hs}-{as_} (estrategia que mejor puntuó en backtest)."
     return p + f"Marcador más probable del modelo: {hs}-{as_} (estrategia que mejor puntuó en backtest)."
@@ -530,7 +530,7 @@ def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
                                   "conf": md["conf"], "type": md["type"],
                                   "reason": f"Marcador forzado manualmente ({osrc})."})
                 else:
-                    preds.append({"stage": "Modelo Poisson-Elo", "date": today, "hs": hs, "as_": as_,
+                    preds.append({"stage": "Mercado + Elo", "date": today, "hs": hs, "as_": as_,
                                   "conf": md["conf"], "type": md["type"], "reason": _reason(hs, as_, md)})
             cur = {"hs": hs, "as_": as_, "conf": md["conf"], "type": md["type"]}
         else:

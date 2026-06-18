@@ -166,7 +166,7 @@ const Modal = ({m,onClose}) => {
 
         {md && (
           <div style={{margin:"0 16px 16px",padding:"12px 14px",background:"#091428",borderRadius:12,border:"1px solid #1e3a5f"}}>
-            <div style={{fontSize:10,color:"#7dd3fc",letterSpacing:2,marginBottom:10,fontWeight:700}}>📊 MODELO POISSON-ELO</div>
+            <div style={{fontSize:10,color:"#7dd3fc",letterSpacing:2,marginBottom:10,fontWeight:700}}>📊 MERCADO + POISSON-ELO</div>
             <Bar1X2 m={m}/>
             <div style={{display:"flex",justifyContent:"space-around",marginTop:12,textAlign:"center"}}>
               <div><div style={{fontSize:8,color:"#475569"}}>GOLES ESP. (λ)</div><div style={{fontSize:13,fontWeight:700,color:"#cbd5e1"}}>{md.lh} – {md.la}</div></div>
@@ -271,7 +271,7 @@ export default function Dashboard({ db }){
   return (
     <div style={{background:"#06090E",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:"#E2E8F0",padding:16}}>
       <div style={{textAlign:"center",paddingBottom:18,borderBottom:"1px solid #1E293B",marginBottom:18}}>
-        <div style={{fontSize:9,color:"#FFB800",letterSpacing:5,marginBottom:6,textTransform:"uppercase"}}>⚽ FIFA World Cup 2026 · Modelo Poisson-Elo</div>
+        <div style={{fontSize:9,color:"#FFB800",letterSpacing:5,marginBottom:6,textTransform:"uppercase"}}>⚽ FIFA World Cup 2026 · Mercado (cuotas) + Poisson-Elo</div>
         <h1 style={{margin:0,fontSize:"clamp(22px,6vw,44px)",fontWeight:900,letterSpacing:-1,background:"linear-gradient(130deg,#FFB800,#FF6B35,#FFB800)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>PRONÓSTICOS & RESULTADOS</h1>
         <div style={{color:"#334155",fontSize:11,marginTop:5}}>Pick optimizado para polla 6/4/3 · toca cualquier partido para el detalle</div>
         {updated && <div style={{display:"inline-block",marginTop:10,background:"#0F1828",border:"1px solid #1E293B",borderRadius:20,padding:"4px 12px",fontSize:11,color:"#7dd3fc"}}>🕒 Última actualización: {updated} (Bogotá)</div>}
@@ -365,7 +365,7 @@ export default function Dashboard({ db }){
       <div style={{marginTop:20,padding:"12px 14px",background:"#0F1828",borderRadius:10,border:"1px solid #1E293B"}}>
         <div style={{fontSize:9,color:"#334155",letterSpacing:3,marginBottom:8,textTransform:"uppercase"}}>Cómo funciona</div>
         <div style={{fontSize:10,color:"#64748b",lineHeight:1.7}}>
-          <b style={{color:"#7dd3fc"}}>Modelo:</b> ratings <b>Elo</b> (eloratings.net) → goles esperados (λ) → distribución de marcadores <b>Poisson + Dixon-Coles</b> → optimización para el puntaje <b>6/4/3</b>. Entorno goleador {PARAMS.baseTotal} goles/partido (calor + 2 pausas de hidratación). <b style={{color:"#7dd3fc"}}>Pick:</b> favorito claro (≥58%) → me comprometo con él; partido parejo → 1-1. Las barras muestran probabilidad de victoria local (verde) / empate (gris) / visitante (azul). El modelo se reajusta solo (Bayesiano) a medida que llegan resultados.
+          <b style={{color:"#7dd3fc"}}>Cómo se calcula:</b> manda el <b>mercado de cuotas</b> (the-odds-api) — sus <b>totales</b> dan los goles esperados (λ) y su <b>hándicap</b> la supremacía; eso define la distribución de marcadores (<b>Poisson + Dixon-Coles</b>). El <b>Poisson-Elo</b> solo matiza o sirve de respaldo cuando no hay cuotas. <b style={{color:"#7dd3fc"}}>Pick:</b> el <b>marcador más probable</b> de esa distribución. Las barras muestran probabilidad de victoria local (verde) / empate (gris) / visitante (azul). Se recalcula cada día con resultados y cuotas frescas; puedes forzar un marcador (BetAlpha) con el override.
         </div>
       </div>
       <Modal key={sel?sel.fixtureId:"none"} m={sel} onClose={()=>setSel(null)}/>
