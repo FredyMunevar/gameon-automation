@@ -56,7 +56,7 @@ PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 # con el Poisson-Elo mejora el acierto (el mercado ya incorpora lesiones/forma/viajes).
 ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
 ODDS_SPORT       = "soccer_fifa_world_cup"
-ODDS_WEIGHT      = 0.75       # peso del mercado en la mezcla (0..1); resto es el modelo
+ODDS_WEIGHT      = 0.90       # mercado al mando; el Elo solo matiza/respalda si no hay cuotas
 
 def load_overrides(path="overrides.json"):
     """Marcadores forzados a mano (p.ej. de BetAlpha): {fixtureId: {hs, as_, src}}."""
