@@ -144,7 +144,7 @@ const Modal = ({m,onClose}) => {
               <span style={{color:"#475569",fontWeight:800}}>–</span>
               <input type="number" min="0" value={oa} onChange={e=>setOa(e.target.value)} placeholder={m.away.name.slice(0,6)}
                 style={{width:62,background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px",textAlign:"center",fontSize:14}}/>
-              <input type="password" inputMode="numeric" value={opin} onChange={e=>setOpin(e.target.value)} placeholder="código"
+              <input type="password" value={opin} onChange={e=>setOpin(e.target.value)} placeholder="código"
                 style={{width:84,background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px",textAlign:"center",fontSize:13}}/>
               <button onClick={()=>saveOv(false)} disabled={obusy}
                 style={{background:obusy?"#1E293B":"#FFB800",color:obusy?"#64748B":"#06090E",border:"none",borderRadius:8,padding:"8px 12px",fontWeight:700,fontSize:13,cursor:"pointer"}}>Guardar</button>
@@ -276,7 +276,7 @@ export default function Dashboard({ db }){
         <div style={{color:"#334155",fontSize:11,marginTop:5}}>Pick optimizado para polla 6/4/3 · toca cualquier partido para el detalle</div>
         {updated && <div style={{display:"inline-block",marginTop:10,background:"#0F1828",border:"1px solid #1E293B",borderRadius:20,padding:"4px 12px",fontSize:11,color:"#7dd3fc"}}>🕒 Última actualización: {updated} (Bogotá)</div>}
         <div style={{marginTop:12,display:"flex",gap:6,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
-          <input type="password" inputMode="numeric" value={pin} onChange={e=>setPin(e.target.value)} placeholder="código"
+          <input type="password" value={pin} onChange={e=>setPin(e.target.value)} placeholder="código"
             style={{background:"#0B1220",border:"1px solid #1E293B",borderRadius:8,color:"#E2E8F0",padding:"7px 10px",fontSize:13,width:110,textAlign:"center"}}/>
           <button onClick={trigger} disabled={busy}
             style={{background:busy?"#1E293B":"#FFB800",color:busy?"#64748B":"#06090E",border:"none",borderRadius:8,padding:"8px 14px",fontWeight:700,fontSize:13,cursor:busy?"default":"pointer"}}>
