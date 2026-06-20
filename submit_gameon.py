@@ -57,6 +57,10 @@ PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
 ODDS_SPORT       = "soccer_fifa_world_cup"
 ODDS_WEIGHT      = 0.90       # mercado al mando; el Elo solo matiza/respalda si no hay cuotas
+# "Sharp under" tipo BetAlpha: the-odds-api da totales ~0.8x más altos que BetAlpha
+# (Alemania 3.08 vs 2.3, Checa 2.44 vs 2.0...). Ajustamos la μ del mercado para igualarlo;
+# esto baja marcadores empatados de favoritos claros a 1-0/2-0.
+ODDS_TOTAL_BIAS  = 0.80
 
 def load_overrides(path="overrides.json"):
     """Marcadores forzados a mano (p.ej. de BetAlpha): {fixtureId: {hs, as_, src}}."""
@@ -401,7 +405,8 @@ def predict(hk, ak, host_home, elo):
     if mkt and (mkt["mu"] is not None or mkt["sup"] is not None):
         w = ODDS_WEIGHT
         model_mu, model_sup = lh + la, lh - la
-        mu  = w * mkt["mu"]  + (1 - w) * model_mu  if mkt["mu"]  is not None else model_mu
+        mkt_mu = mkt["mu"] * ODDS_TOTAL_BIAS if mkt["mu"] is not None else None
+        mu  = w * mkt_mu     + (1 - w) * model_mu  if mkt_mu     is not None else model_mu
         sup = w * mkt["sup"] + (1 - w) * model_sup if mkt["sup"] is not None else model_sup
         lh = max(model.LAMBDA_FLOOR, (mu + sup) / 2)
         la = max(model.LAMBDA_FLOOR, (mu - sup) / 2)
