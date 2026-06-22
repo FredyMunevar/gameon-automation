@@ -57,10 +57,10 @@ PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
 ODDS_SPORT       = "soccer_fifa_world_cup"
 ODDS_WEIGHT      = 0.90       # mercado al mando; el Elo solo matiza/respalda si no hay cuotas
-# "Sharp under" tipo BetAlpha: the-odds-api da totales ~0.8x más altos que BetAlpha
-# (Alemania 3.08 vs 2.3, Checa 2.44 vs 2.0...). Ajustamos la μ del mercado para igualarlo;
-# esto baja marcadores empatados de favoritos claros a 1-0/2-0.
-ODDS_TOTAL_BIAS  = 0.80
+# Sesgo a la μ del mercado. El 0.80 ("sharp under" tipo BetAlpha) resultó SOBRE-corregido:
+# backtest sobre 40 jugados -> 1.0 (sin sesgo) saca 70 pts/6 exactos vs 0.80 con 68/4, y
+# ~50% de los partidos se deciden por 2+ goles. Dejamos el mercado sin recortar.
+ODDS_TOTAL_BIAS  = 1.00
 
 def load_overrides(path="overrides.json"):
     """Marcadores forzados a mano (p.ej. de BetAlpha): {fixtureId: {hs, as_, src}}."""
