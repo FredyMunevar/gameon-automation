@@ -52,10 +52,10 @@ PLAYABLE_STATE   = "NS"       # Not Started — único estado en que se puede pr
 # Estrategia de pick. "modal" (marcador más probable) ganó en backtest: 45 vs 40
 # (híbrido) vs 28 (EV) sobre 20 jugados, y 27 vs 25 sobre los 12 originales.
 PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
-# Favoritísimos: si el favorito tiene >= HEAVY_FAV_PROB de ganar, le sumamos 1 gol al
-# pick (2-0 -> 3-0). Los elites están goleando y el modal se quedaba corto. Backtest
-# sobre 40 jugados: 88 pts/10 exactos vs 79/7 del modal puro. Riesgo bajo (el piso de
-# 3 pts por ganador se mantiene), upside alto (clavar la goleada).
+# Favoritísimos: si el favorito tiene >= HEAVY_FAV_PROB de ganar, fijamos sus goles en
+# sus goles esperados redondeados (el modal se quedaba corto porque los elites golean).
+# El débil queda en su modal (~0). Backtest 40 jugados: la idea de comprometerse con la
+# goleada sube a ~88 pts/10 exactos vs 79/7 del modal puro. Piso (3 pts por ganador) intacto.
 HEAVY_FAV_PROB   = 0.72
 # Cuotas de mercado (the-odds-api.com): mezclar la probabilidad implícita del mercado
 # con el Poisson-Elo mejora el acierto (el mercado ya incorpora lesiones/forma/viajes).
@@ -428,9 +428,14 @@ def predict(hk, ak, host_home, elo):
     if PICK_STRATEGY == "ev":       pick = evp
     elif PICK_STRATEGY == "hybrid": pick = model.recommend(dict(ph=ph, pd=pd, pa=pa, pick=evp, modal=mod))
     else:                           pick = mod   # "modal": marcador más probable
-    # favoritísimo: comprometerse con la goleada (favorito +1 gol)
-    if max(ph, pa) >= HEAVY_FAV_PROB and pick[0] != pick[1]:
-        pick = (pick[0] + 1, pick[1]) if pick[0] > pick[1] else (pick[0], pick[1] + 1)
+    # favoritísimo: comprometerse con la goleada. Goles del favorito = sus goles
+    # esperados redondeados (no "+1 a ciegas"); el débil queda en su modal (≈0,
+    # respaldado por 86% de vallas en cero contra favoritísimos).
+    if max(ph, pa) >= HEAVY_FAV_PROB:
+        if ph >= pa:
+            pick = (max(1, round(lh)), pick[1])
+        else:
+            pick = (pick[0], max(1, round(la)))
     coin = not (ph >= 0.58 or pa >= 0.58)
     typ = "EMP" if coin else ("FAV" if max(ph, pa) >= 0.68 else "SOR")
     po = (pick[0] > pick[1]) - (pick[0] < pick[1])
