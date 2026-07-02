@@ -260,9 +260,11 @@ export default function Dashboard({ db }){
   const ex=played.filter(m=>getStatus(m)==="exact").length;
   const co=played.filter(m=>getStatus(m)==="correct").length;
   const wr=played.filter(m=>getStatus(m)==="wrong").length;
-  const byDate=MATCHES.reduce((a,m)=>({...a,[m.date]:[...(a[m.date]||[]),m]}),{});
-  const dnum=(d)=>+String(d).replace(/[^0-9]/g,"");
-  const dates=Object.keys(byDate).sort((a,b)=>dnum(a)-dnum(b));
+  // ordenar por fecha REAL (saque_utc) de reciente a antiguo
+  const _key=m=>m.saque_utc||m.date||"";
+  const _ordered=[...MATCHES].sort((a,b)=>_key(b).localeCompare(_key(a)));
+  const byDate={}; const dates=[];
+  for(const m of _ordered){ if(!byDate[m.date]){byDate[m.date]=[]; dates.push(m.date);} byDate[m.date].push(m); }
   const cur=tab!=="★"?MATCHES.filter(m=>m.gid===tab):[];
   const btn=a=>({padding:"6px 12px",borderRadius:7,border:"1px solid",borderColor:a?"#FFB800":"#1E293B",backgroundColor:a?"#FFB800":"#0F1828",color:a?"#06090E":"#64748B",fontWeight:700,fontSize:12,cursor:"pointer"});
   const stats=[["⚽",played.length+"/"+MATCHES.length,"Jugados"],["✅",ex,"Exactos"],["🎯",co,"Acertados"],["❌",wr,"Fallidos"],["📊",BT.recPoints,"Pts modelo*"]];

@@ -57,6 +57,15 @@ PICK_STRATEGY    = "modal"    # "modal" | "hybrid" | "ev"
 # El débil queda en su modal (~0). Backtest 40 jugados: la idea de comprometerse con la
 # goleada sube a ~88 pts/10 exactos vs 79/7 del modal puro. Piso (3 pts por ganador) intacto.
 HEAVY_FAV_PROB   = 0.72
+# Eliminatorias: la polla puntúa el marcador hasta el TIEMPO EXTRA (120'), y casi
+# siempre hay ganador (solo empata si va a penales). Subimos goles esperados por el
+# TE y NO predecimos empate (elegimos al favorito ganando). Backtest 11 eliminatorias:
+# 38 pts vs 21 del modal con empates.
+ET_FACTOR        = 1.25       # multiplicador de goles esperados en eliminatorias (120')
+
+def is_knockout(m):
+    stg = ((m.get("league") or {}).get("stage") or "")
+    return bool(stg) and "group" not in stg.lower()
 # Cuotas de mercado (the-odds-api.com): mezclar la probabilidad implícita del mercado
 # con el Poisson-Elo mejora el acierto (el mercado ya incorpora lesiones/forma/viajes).
 ODDS_API_KEY     = os.environ.get("ODDS_API_KEY", "")
@@ -402,8 +411,9 @@ def _market_get(hk, ak):
                 "sup": (-d["sup"] if d["sup"] is not None else None)}  # invertir orientación
     return None
 
-def predict(hk, ak, host_home, elo):
-    """Devuelve (pick (hs,as), meta). Si hay cuotas de mercado, las mezcla con el modelo."""
+def predict(hk, ak, host_home, elo, is_ko=False):
+    """Devuelve (pick (hs,as), meta). Mezcla cuotas si hay; en eliminatorias (is_ko)
+    ajusta por tiempo extra y no predice empate."""
     lh, la = model.lambdas(hk, ak, host_home, False, elo=elo)
     mkt = _market_get(hk, ak)
     used_market = False
@@ -416,6 +426,8 @@ def predict(hk, ak, host_home, elo):
         lh = max(model.LAMBDA_FLOOR, (mu + sup) / 2)
         la = max(model.LAMBDA_FLOOR, (mu - sup) / 2)
         used_market = True
+    if is_ko:                       # eliminatorias: se juega hasta 120' -> más goles
+        lh *= ET_FACTOR; la *= ET_FACTOR
     M = model.score_matrix(lh, la)
     ph, pd, pa = model.outcome_probs(M)
     if used_market and mkt["p"]:   # afinar el 1X2 hacia el mercado (no cambia el marcador)
@@ -436,6 +448,10 @@ def predict(hk, ak, host_home, elo):
             pick = (max(1, round(lh)), pick[1])
         else:
             pick = (pick[0], max(1, round(la)))
+    if is_ko and pick[0] == pick[1]:   # eliminatoria: no empate, favorito gana
+        rng = range(len(M))
+        cand = [(i, j) for i in rng for j in rng if (i > j if ph >= pa else i < j)]
+        pick = max(cand, key=lambda c: M[c[0]][c[1]])
     coin = not (ph >= 0.58 or pa >= 0.58)
     typ = "EMP" if coin else ("FAV" if max(ph, pa) >= 0.68 else "SOR")
     po = (pick[0] > pick[1]) - (pick[0] < pick[1])
@@ -467,7 +483,7 @@ def compute_live_batch(fixtures, user_id, now, elo, date_filter=None):
         hk, ak = elo_key(hn), elo_key(vn)
         if hk not in elo or ak not in elo:
             log(f"  ⏭  {es_name(hn)} vs {es_name(vn)}: sin Elo (equipo aún por definir)"); skipped += 1; continue
-        (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
+        (hs, as_), md = predict(hk, ak, hk in HOSTS, elo, is_knockout(m))
         hs, as_, osrc = apply_override(m["fixtureId"], hs, as_)
         tag = f" [OVERRIDE {osrc}]" if osrc else f" [{md['type']} {md['conf']}% · 1X2 {md['ph']}/{md['pd']}/{md['pa']}]"
         log(f"  ✓ {es_name(hn)} {hs}-{as_} {es_name(vn)}  fix={m['fixtureId']} {tag}  {why}")
@@ -533,7 +549,7 @@ def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
         meta = _META.get((hes, ves), {})
         ko = kickoff(m)
         date_lbl = f"{MES[ko.astimezone(BOGOTA).month]} {ko.astimezone(BOGOTA).day}" if ko else ""
-        (hs, as_), md = predict(hk, ak, hk in HOSTS, elo)
+        (hs, as_), md = predict(hk, ak, hk in HOSTS, elo, is_knockout(m))
         hs, as_, osrc = apply_override(m["fixtureId"], hs, as_)
 
         # historial acumulado: arranca del previo, o se siembra del histórico viejo
@@ -561,6 +577,7 @@ def build_dashboard_data(fixtures, elo, now, path="dashboard/data/model.json"):
             "fixtureId": m["fixtureId"],
             "gid": _GID.get(hes, (m.get("league") or {}).get("round", "?")),
             "date": date_lbl,
+            "saque_utc": m.get("date"),
             "venue": meta.get("venue", ""),
             "home": {"name": hes, "flag": _FLAG.get(hes, "🏳️"), **({"debut": True} if _DEBUT.get(hes) else {})},
             "away": {"name": ves, "flag": _FLAG.get(ves, "🏳️"), **({"debut": True} if _DEBUT.get(ves) else {})},
