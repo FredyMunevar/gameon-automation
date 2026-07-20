@@ -1,5 +1,12 @@
 # GameOn — Automatización de pronósticos (Mundial 2026)
 
+> ⛔ **DESACTIVADO / ARCHIVO (2026-07-20).** Toda la automatización está apagada:
+> el workflow de GitHub Actions `polla.yml` quedó `disabled_manually` (no envía
+> correos ni hace commits) y se eliminó el cron de Vercel (`dashboard/vercel.json`
+> → `"crons": []`). Este repositorio se conserva únicamente como registro de lo
+> que se construyó. Para reactivarlo habría que volver a habilitar el workflow
+> (`gh workflow enable polla.yml`) y restaurar el cron.
+
 Envía **mis pronósticos** a la app [AppGameOn](https://apiv2.appgameon.com/) de forma autónoma, todos los días, **en la nube** (GitHub Actions) — sin emulador ni mi Mac encendida.
 
 Es una competencia entre amigos de "quién predice mejor usando IA" (sin dinero). Cada mañana el sistema lee los resultados ya jugados, actualiza un modelo Elo bayesiano, re-predice los partidos que faltan y deja puestos los marcadores antes del cierre.
